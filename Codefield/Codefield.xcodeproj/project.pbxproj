@@ -1,0 +1,549 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 110;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		581591BF3068676D005BBE86 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 581591A93068676A005BBE86 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 581591B03068676A005BBE86;
+			remoteInfo = Codefield;
+		};
+		581591C93068676D005BBE86 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 581591A93068676A005BBE86 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 581591B03068676A005BBE86;
+			remoteInfo = Codefield;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		581591B13068676A005BBE86 /* Codefield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Codefield.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		581591BE3068676D005BBE86 /* CodefieldTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CodefieldTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		581591C83068676D005BBE86 /* CodefieldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CodefieldUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		581591B33068676A005BBE86 /* Codefield */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Codefield;
+			sourceTree = "<group>";
+		};
+		581591C13068676D005BBE86 /* CodefieldTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CodefieldTests;
+			sourceTree = "<group>";
+		};
+		581591CB3068676D005BBE86 /* CodefieldUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CodefieldUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		581591AE3068676A005BBE86 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		581591BB3068676D005BBE86 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		581591C53068676D005BBE86 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		581591A83068676A005BBE86 = {
+			isa = PBXGroup;
+			children = (
+				581591B33068676A005BBE86 /* Codefield */,
+				581591C13068676D005BBE86 /* CodefieldTests */,
+				581591CB3068676D005BBE86 /* CodefieldUITests */,
+				581591B23068676A005BBE86 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		581591B23068676A005BBE86 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				581591B13068676A005BBE86 /* Codefield.app */,
+				581591BE3068676D005BBE86 /* CodefieldTests.xctest */,
+				581591C83068676D005BBE86 /* CodefieldUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		581591B03068676A005BBE86 /* Codefield */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 581591D03068676D005BBE86 /* Build configuration list for PBXNativeTarget "Codefield" */;
+			buildPhases = (
+				581591AD3068676A005BBE86 /* Sources */,
+				581591AE3068676A005BBE86 /* Frameworks */,
+				581591AF3068676A005BBE86 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				581591B33068676A005BBE86 /* Codefield */,
+			);
+			name = Codefield;
+			productName = Codefield;
+			productReference = 581591B13068676A005BBE86 /* Codefield.app */;
+			productType = "com.apple.product-type.application";
+		};
+		581591BD3068676D005BBE86 /* CodefieldTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 581591D33068676D005BBE86 /* Build configuration list for PBXNativeTarget "CodefieldTests" */;
+			buildPhases = (
+				581591BA3068676D005BBE86 /* Sources */,
+				581591BB3068676D005BBE86 /* Frameworks */,
+				581591BC3068676D005BBE86 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				581591C03068676D005BBE86 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				581591C13068676D005BBE86 /* CodefieldTests */,
+			);
+			name = CodefieldTests;
+			productName = CodefieldTests;
+			productReference = 581591BE3068676D005BBE86 /* CodefieldTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		581591C73068676D005BBE86 /* CodefieldUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 581591D63068676D005BBE86 /* Build configuration list for PBXNativeTarget "CodefieldUITests" */;
+			buildPhases = (
+				581591C43068676D005BBE86 /* Sources */,
+				581591C53068676D005BBE86 /* Frameworks */,
+				581591C63068676D005BBE86 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				581591CA3068676D005BBE86 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				581591CB3068676D005BBE86 /* CodefieldUITests */,
+			);
+			name = CodefieldUITests;
+			productName = CodefieldUITests;
+			productReference = 581591C83068676D005BBE86 /* CodefieldUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		581591A93068676A005BBE86 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2700;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					581591B03068676A005BBE86 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					581591BD3068676D005BBE86 = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = 581591B03068676A005BBE86;
+					};
+					581591C73068676D005BBE86 = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = 581591B03068676A005BBE86;
+					};
+				};
+			};
+			buildConfigurationList = 581591AC3068676A005BBE86 /* Build configuration list for PBXProject "Codefield" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 581591A83068676A005BBE86;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 581591B23068676A005BBE86 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				581591B03068676A005BBE86 /* Codefield */,
+				581591BD3068676D005BBE86 /* CodefieldTests */,
+				581591C73068676D005BBE86 /* CodefieldUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		581591AF3068676A005BBE86 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		581591BC3068676D005BBE86 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		581591C63068676D005BBE86 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		581591AD3068676A005BBE86 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		581591BA3068676D005BBE86 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		581591C43068676D005BBE86 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		581591C03068676D005BBE86 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 581591B03068676A005BBE86 /* Codefield */;
+			targetProxy = 581591BF3068676D005BBE86 /* PBXContainerItemProxy */;
+		};
+		581591CA3068676D005BBE86 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 581591B03068676A005BBE86 /* Codefield */;
+			targetProxy = 581591C93068676D005BBE86 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		581591CE3068676D005BBE86 /* Debug configuration for PBXProject "Codefield" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		581591CF3068676D005BBE86 /* Release configuration for PBXProject "Codefield" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		581591D13068676D005BBE86 /* Debug configuration for PBXNativeTarget "Codefield" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Codefield.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Kerem Can Özkurt. PolyForm Noncommercial License 1.0.0.";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.Codefield;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		581591D23068676D005BBE86 /* Release configuration for PBXNativeTarget "Codefield" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Codefield.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Kerem Can Özkurt. PolyForm Noncommercial License 1.0.0.";
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.Codefield;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		581591D43068676D005BBE86 /* Debug configuration for PBXNativeTarget "CodefieldTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.CodefieldTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Codefield.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Codefield";
+			};
+			name = Debug;
+		};
+		581591D53068676D005BBE86 /* Release configuration for PBXNativeTarget "CodefieldTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.CodefieldTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Codefield.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Codefield";
+			};
+			name = Release;
+		};
+		581591D73068676D005BBE86 /* Debug configuration for PBXNativeTarget "CodefieldUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.CodefieldUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Codefield;
+			};
+			name = Debug;
+		};
+		581591D83068676D005BBE86 /* Release configuration for PBXNativeTarget "CodefieldUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.CodefieldUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Codefield;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		581591AC3068676A005BBE86 /* Build configuration list for PBXProject "Codefield" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				581591CE3068676D005BBE86 /* Debug configuration for PBXProject "Codefield" */,
+				581591CF3068676D005BBE86 /* Release configuration for PBXProject "Codefield" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		581591D03068676D005BBE86 /* Build configuration list for PBXNativeTarget "Codefield" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				581591D13068676D005BBE86 /* Debug configuration for PBXNativeTarget "Codefield" */,
+				581591D23068676D005BBE86 /* Release configuration for PBXNativeTarget "Codefield" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		581591D33068676D005BBE86 /* Build configuration list for PBXNativeTarget "CodefieldTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				581591D43068676D005BBE86 /* Debug configuration for PBXNativeTarget "CodefieldTests" */,
+				581591D53068676D005BBE86 /* Release configuration for PBXNativeTarget "CodefieldTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		581591D63068676D005BBE86 /* Build configuration list for PBXNativeTarget "CodefieldUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				581591D73068676D005BBE86 /* Debug configuration for PBXNativeTarget "CodefieldUITests" */,
+				581591D83068676D005BBE86 /* Release configuration for PBXNativeTarget "CodefieldUITests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 581591A93068676A005BBE86 /* Project object */;
+	validationLevel = 1;
+}

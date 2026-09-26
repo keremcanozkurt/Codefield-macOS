@@ -1,0 +1,37 @@
+@import "../upstream/src/app/globals.css";
+
+@source "../upstream/src/components";
+@source "./";
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+/*
+  Upstream sizes the workspace for a scrolling page: a fixed-height panel
+  below the page header. In the app window it fills the height instead. The
+  selectors follow upstream's Workspace markup (the toolbar row, then the
+  bordered panel); the full-screen layout is already fixed to the viewport.
+*/
+.desktop-workspace {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.desktop-workspace > div:not(.fixed) {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.desktop-workspace > div:not(.fixed) > .overflow-hidden.rounded-md.border {
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
+}

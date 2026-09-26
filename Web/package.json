@@ -1,0 +1,27 @@
+{
+  "name": "codefield-macos-workspace",
+  "private": true,
+  "type": "module",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "scripts": {
+    "sync": "node scripts/sync-upstream.mjs",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"upstream/src/**/*.test.ts\" \"src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "graphology": "0.26.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sigma": "3.0.3",
+    "typescript": "5.9.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "esbuild": "0.28.2",
+    "tailwindcss": "4.3.3"
+  }
+}
