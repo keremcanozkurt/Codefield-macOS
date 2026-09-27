@@ -59,7 +59,20 @@ await copyFile(join(web, "src", "workspace.html"), join(output, "workspace.html"
 const product = await import(pathToFileURL(join(web, "src", "product.ts")).href);
 await writeFile(
   join(output, "faq.json"),
-  `${JSON.stringify({ supportURL: product.SUPPORT_URL, supportNote: product.SUPPORT_NOTE, entries: product.FAQ }, null, 2)}\n`,
+  `${JSON.stringify(
+    {
+      entries: product.FAQ,
+      contactTitle: product.CONTACT_TITLE,
+      contactNote: product.CONTACT_NOTE,
+      contactEmail: product.CONTACT_EMAIL,
+      donationNote: product.DONATION_NOTE,
+      donationLabel: product.DONATION_LABEL,
+      donationURL: product.DONATION_URL,
+      supportURL: product.SUPPORT_URL,
+    },
+    null,
+    2,
+  )}\n`,
 );
 
 // The license text of every npm package that ended up in the bundles.

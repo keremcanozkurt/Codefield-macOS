@@ -250,12 +250,17 @@ private final class MessageProxy: NSObject, WKScriptMessageHandler {
 }
 
 enum ExternalLinks {
+    // Help with using Codefield.
     static let support = URL(string: "https://codefield.keremcanozkurt.com/support")!
+    // Financial support for its development.
+    static let donation = URL(string: "https://codefield.keremcanozkurt.com/donation")!
+    nonisolated static let contact = URL(string: "mailto:hello@keremcanozkurt.com")!
 
-    // The page only links to the Codefield site. Anything else a page could
-    // produce is not opened.
+    // The page only links to the Codefield site and the contact address.
+    // Anything else a page could produce is not opened.
     nonisolated static func isAllowed(_ url: URL) -> Bool {
-        url.scheme == "https" && url.host()?.lowercased() == "codefield.keremcanozkurt.com"
+        if url.scheme == "mailto" { return url.absoluteString == contact.absoluteString }
+        return url.scheme == "https" && url.host()?.lowercased() == "codefield.keremcanozkurt.com"
     }
 
     static func open(_ url: URL) {

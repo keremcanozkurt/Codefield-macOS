@@ -1,17 +1,24 @@
 import SwiftUI
 
-// The questions and answers come from faq.json, which the web build writes
-// from Web/src/product.ts: the same list the workspace page shows in its own
-// full-screen help, kept in one place.
+// The questions, answers and links come from faq.json, which the web build
+// writes from Web/src/product.ts: the same list the workspace page shows in
+// its own full-screen help, kept in one place.
 nonisolated struct FAQContent: Decodable, Equatable, Sendable {
     struct Entry: Decodable, Equatable, Hashable, Sendable {
         var question: String
         var answer: String
     }
 
-    var supportURL: URL
-    var supportNote: String
     var entries: [Entry]
+    var contactTitle: String
+    var contactNote: String
+    var contactEmail: String
+    var donationNote: String
+    var donationLabel: String
+    var donationURL: URL
+    var supportURL: URL
+
+    var contactURL: URL? { URL(string: "mailto:\(contactEmail)") }
 
     static func load(from bundle: Bundle = .main) -> FAQContent? {
         let url = bundle.url(forResource: "faq", withExtension: "json")
@@ -27,9 +34,16 @@ struct FAQView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 10) {
+                Image("CodefieldMark")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 16)
+                    .foregroundStyle(Theme.foreground)
+                    .accessibilityHidden(true)
                 Text("Frequently asked questions")
                     .font(.system(size: 15, weight: .semibold))
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
                 Button("Done") { dismiss() }
                     .keyboardShortcut(.cancelAction)
@@ -61,15 +75,33 @@ struct FAQView: View {
             }
 
             if let content {
-                HStack(spacing: 4) {
-                    Text(content.supportNote)
-                        .foregroundStyle(Theme.subtle)
-                    Button("Support Codefield") { ExternalLinks.open(content.supportURL) }
-                        .buttonStyle(.link)
+                VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(content.contactTitle)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Theme.foreground)
+                        HStack(spacing: 0) {
+                            Text(content.contactNote + " ")
+                                .foregroundStyle(Theme.subtle)
+                            Button(content.contactEmail) {
+                                if let url = content.contactURL { ExternalLinks.open(url) }
+                            }
+                            .buttonStyle(.link)
+                            Text(".")
+                                .foregroundStyle(Theme.subtle)
+                        }
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(content.donationNote)
+                            .foregroundStyle(Theme.subtle)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button("\(content.donationLabel) →") { ExternalLinks.open(content.donationURL) }
+                            .buttonStyle(.link)
+                    }
                 }
                 .font(.system(size: 11))
                 .padding(.horizontal, 24)
-                .padding(.vertical, 12)
+                .padding(.vertical, 14)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }

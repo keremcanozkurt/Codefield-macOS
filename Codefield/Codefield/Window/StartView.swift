@@ -41,7 +41,10 @@ struct StartView: View {
             HStack(spacing: 14) {
                 Button("FAQ") { model.showFAQ() }
                 Button("Support") { ExternalLinks.open(ExternalLinks.support) }
-                    .help("Codefield is free for personal use. Support its continued development.")
+                    .help("Help with using Codefield")
+                Button("Support Codefield", systemImage: "heart") { ExternalLinks.open(ExternalLinks.donation) }
+                    .labelStyle(.iconOnly)
+                    .help("Support Codefield")
                 Spacer()
                 Text("Your source code stays on your Mac.")
                     .foregroundStyle(Theme.subtle)
@@ -95,15 +98,23 @@ private struct FooterLinkStyle: ButtonStyle {
     }
 }
 
-// The logo will sit in front of the name; until it exists the slot is empty.
+// The symbol and wordmark are vector images in the asset catalog, drawn in
+// the page's foreground color.
 struct ProductMark: View {
     var body: some View {
-        HStack(spacing: 12) {
-            Text("Codefield")
-                .font(.system(size: 40, weight: .semibold))
-                .tracking(-0.8)
-                .foregroundStyle(Theme.foreground)
+        HStack(spacing: 18) {
+            Image("CodefieldMark")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 54)
+            Image("CodefieldWordmark")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 36)
         }
+        .foregroundStyle(Theme.foreground)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Codefield")
         .accessibilityAddTraits(.isHeader)
     }
 }

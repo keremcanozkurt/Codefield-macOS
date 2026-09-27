@@ -110,6 +110,9 @@ struct WorkspaceResourceTests {
         #expect(!ExternalLinks.isAllowed(URL(string: "https://example.com/")!))
         #expect(!ExternalLinks.isAllowed(URL(string: "https://codefield.keremcanozkurt.com.example.com/")!))
         #expect(!ExternalLinks.isAllowed(URL(string: "file:///etc/passwd")!))
+        #expect(ExternalLinks.isAllowed(URL(string: "mailto:hello@keremcanozkurt.com")!))
+        #expect(!ExternalLinks.isAllowed(URL(string: "mailto:someone@example.com")!))
+        #expect(!ExternalLinks.isAllowed(URL(string: "mailto:hello@keremcanozkurt.com?subject=x&attach=/etc/passwd")!))
     }
 
     @Test func savesOnlyPNGExportsUnderFreeNames() throws {

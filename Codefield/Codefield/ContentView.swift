@@ -75,8 +75,8 @@ private struct WindowToolbar: ToolbarContent {
                     .help("Open another repository in this window (⌘O)")
                 Button("FAQ", systemImage: "questionmark.circle") { model.showFAQ() }
                     .help("Frequently asked questions")
-                Button("Support", systemImage: "heart") { ExternalLinks.open(ExternalLinks.support) }
-                    .help("Codefield is free for personal use. Support its continued development.")
+                Button("Support Codefield", systemImage: "heart") { ExternalLinks.open(ExternalLinks.donation) }
+                    .help("Support Codefield")
             }
         }
     }

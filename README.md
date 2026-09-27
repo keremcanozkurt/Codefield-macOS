@@ -45,7 +45,9 @@ Web/
   scripts/                       sync-upstream.mjs, build.mjs
 ```
 
-`Web/upstream` is a copy of `src/lib`, `src/components` and `src/app/globals.css` from the Codefield repository, at the commit in `Web/upstream/REVISION`. It is not edited by hand. `Web/src` holds what differs on the Mac: the page that hosts the workspace, the analysis worker, the FAQ and error text. The build also writes the FAQ to `faq.json`, which the native FAQ window reads, so the text has one source.
+`Web/upstream` is a copy of `src/lib`, `src/components` and `src/app/globals.css` from the Codefield repository, at the commit in `Web/upstream/REVISION`. It is not edited by hand. `Web/src` holds what differs on the Mac: the page that hosts the workspace, the analysis worker, the FAQ and error text. The FAQ answers that apply to both editions, the help and donation links and the contact address come from Codefield's `src/lib/product.ts`; `Web/src/product.ts` adds the questions that only apply to the Mac. The build also writes the FAQ to `faq.json`, which the native FAQ window reads, so the text has one source.
+
+The app icon and the symbol and wordmark in `Assets.xcassets` are drawn from the vector logo in Codefield's `brand/` folder.
 
 ## Building
 
@@ -92,7 +94,7 @@ Analyze Again (⌘R) reads the folder again as it is on disk, after edits, pulls
 
 Escape leaves the innermost state first: the workspace's own full screen, then Path Finder or Impact Mode, then the selection. It never closes the window or leaves macOS full screen.
 
-The FAQ and the support link are on the start screen and in the window toolbar.
+The FAQ is on the start screen, in the window toolbar and in the Help menu, with the contact address at its end. Support opens [codefield.keremcanozkurt.com/support](https://codefield.keremcanozkurt.com/support) for help with using Codefield; the heart opens [codefield.keremcanozkurt.com/donation](https://codefield.keremcanozkurt.com/donation) for supporting its development.
 
 ## Privacy and security
 

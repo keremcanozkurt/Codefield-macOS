@@ -296,6 +296,10 @@ struct RepositoryWindowModelTests {
 
         let content = try #require(FAQContent.load())
         #expect(content.supportURL == ExternalLinks.support)
+        #expect(content.donationURL == ExternalLinks.donation)
+        #expect(content.contactURL == ExternalLinks.contact)
+        #expect(ExternalLinks.support.absoluteString == "https://codefield.keremcanozkurt.com/support")
+        #expect(ExternalLinks.donation.absoluteString == "https://codefield.keremcanozkurt.com/donation")
         #expect(content.entries.contains { $0.question.contains("Clone Git Repository") })
         #expect(!content.entries.contains { $0.answer.contains("started with") || $0.answer.contains("127.0.0.1") })
     }

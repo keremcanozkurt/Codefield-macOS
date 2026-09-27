@@ -1,6 +1,4 @@
 {
-  "supportURL": "https://codefield.keremcanozkurt.com/support",
-  "supportNote": "Codefield is free for personal use. Support its continued development.",
   "entries": [
     {
       "question": "Does my source code leave my Mac?",
@@ -12,11 +10,11 @@
     },
     {
       "question": "Does Codefield run code from the repository?",
-      "answer": "No. Source and configuration files are read as text. Codefield never runs scripts, builds the project or runs `git` on it; the branch shown next to the name is read from the files in `.git`."
+      "answer": "No. Source and configuration files are read as text. Codefield never runs scripts or builds the project, and the branch shown next to the repository name is read from the files in `.git`, not by running `git`."
     },
     {
       "question": "Do I need GitHub?",
-      "answer": "No. Codefield opens any folder on your Mac, whether or not it is a Git repository, and clones from any host your Git can reach: GitHub, GitLab, Bitbucket, Codeberg, Gitea, Forgejo or your own server."
+      "answer": "No. Codefield opens any folder on your Mac, whether or not it is a Git repository. To clone a repository, Clone Git Repository uses your installed Git and your existing SSH or credential setup, whatever the host: GitHub, GitLab, Bitbucket, Codeberg, Gitea, Forgejo or your own server."
     },
     {
       "question": "How does Clone Git Repository work?",
@@ -24,7 +22,7 @@
     },
     {
       "question": "Can I analyze private repositories?",
-      "answer": "Yes. If `git clone` works for you in Terminal, Clone Git Repository works too, with the same credentials. You can also clone in Terminal and open the folder."
+      "answer": "Yes. Open a repository that is already on your Mac, or clone one with Clone Git Repository: Git uses the credentials you already have, and Codefield never asks for them."
     },
     {
       "question": "Do I need to commit or push changes before Codefield sees them?",
@@ -58,5 +56,12 @@
       "question": "Is the source available?",
       "answer": "Yes. Codefield is source-available: you can read, fork and modify it for personal and non-commercial use under the PolyForm Noncommercial license, and contributions are welcome. Commercial use needs the author's permission. See LICENSE in the repository for the full terms."
     }
-  ]
+  ],
+  "contactTitle": "Still have a question?",
+  "contactNote": "If the FAQ didn't fully answer it, you can reach us at",
+  "contactEmail": "hello@keremcanozkurt.com",
+  "donationNote": "Codefield is free to use for permitted non-commercial use. If you'd like to support its continued development:",
+  "donationLabel": "Support Codefield",
+  "donationURL": "https://codefield.keremcanozkurt.com/donation",
+  "supportURL": "https://codefield.keremcanozkurt.com/support"
 }

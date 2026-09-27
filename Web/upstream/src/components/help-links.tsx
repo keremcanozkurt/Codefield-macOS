@@ -2,10 +2,23 @@
 
 import { useId, useRef, type Ref } from "react";
 
-import { FAQ, SUPPORT_NOTE, SUPPORT_URL } from "@/lib/product";
+import { CodefieldMark } from "@/components/codefield-logo";
+import {
+  CONTACT_EMAIL,
+  CONTACT_NOTE,
+  CONTACT_TITLE,
+  DONATION_LABEL,
+  DONATION_NOTE,
+  DONATION_URL,
+  FAQ,
+  SUPPORT_URL,
+} from "@/lib/product";
 
 const linkClass =
   "rounded px-1.5 py-0.5 text-sm text-subtle transition-colors duration-150 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/40";
+
+const footerLinkClass =
+  "text-muted underline decoration-line-strong underline-offset-2 transition-colors duration-150 hover:text-foreground";
 
 export function HelpLinks() {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -19,11 +32,22 @@ export function HelpLinks() {
         href={SUPPORT_URL}
         target="_blank"
         rel="noopener noreferrer"
-        title={SUPPORT_NOTE}
-        aria-label="Support Codefield (opens in a new tab)"
+        aria-label="Support (opens in a new tab)"
         className={linkClass}
       >
         Support
+      </a>
+      <a
+        href={DONATION_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={DONATION_LABEL}
+        aria-label={`${DONATION_LABEL} (opens in a new tab)`}
+        className="grid size-7 place-items-center rounded text-subtle transition-colors duration-150 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/40"
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round">
+          <path d="M8 13.5S2 10 2 5.9A3.1 3.1 0 0 1 8 4.6a3.1 3.1 0 0 1 6 1.3C14 10 8 13.5 8 13.5Z" />
+        </svg>
       </a>
       <FaqDialog ref={dialogRef} />
     </div>
@@ -46,7 +70,8 @@ function FaqDialog({ ref }: { ref: Ref<HTMLDialogElement> }) {
       className="m-auto max-h-[85svh] w-[min(40rem,calc(100vw-2rem))] overflow-y-auto rounded-lg border border-line bg-surface p-0 text-foreground backdrop:bg-black/60"
     >
       <div className="sticky top-0 flex items-center justify-between border-b border-line bg-surface px-6 py-4">
-        <h2 id={titleId} className="text-base font-semibold tracking-tight">
+        <h2 id={titleId} className="flex items-center gap-2.5 text-base font-semibold tracking-tight">
+          <CodefieldMark className="h-4 w-auto shrink-0" />
           Frequently asked questions
         </h2>
         <form method="dialog">
@@ -71,17 +96,22 @@ function FaqDialog({ ref }: { ref: Ref<HTMLDialogElement> }) {
           </div>
         ))}
       </dl>
-      <p className="border-t border-line px-6 py-4 text-xs text-subtle">
-        {SUPPORT_NOTE}{" "}
-        <a
-          href={SUPPORT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-muted underline decoration-line-strong underline-offset-2 hover:text-foreground"
-        >
-          codefield.keremcanozkurt.com/support
-        </a>
-      </p>
+      <div className="space-y-3 border-t border-line px-6 py-4 text-xs leading-relaxed text-subtle">
+        <p>
+          <span className="block text-sm font-medium text-foreground">{CONTACT_TITLE}</span>
+          {CONTACT_NOTE}{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className={footerLinkClass}>
+            {CONTACT_EMAIL}
+          </a>
+          .
+        </p>
+        <p>
+          {DONATION_NOTE}{" "}
+          <a href={DONATION_URL} target="_blank" rel="noopener noreferrer" className={footerLinkClass}>
+            {DONATION_LABEL} →
+          </a>
+        </p>
+      </div>
     </dialog>
   );
 }

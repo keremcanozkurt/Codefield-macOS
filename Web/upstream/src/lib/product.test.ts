@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { LANGUAGES } from "./languages/registry.ts";
-import { CLONE_COMMAND, FAQ, OPEN_COMMAND, SUPPORT_URL } from "./product.ts";
+import { CLONE_COMMAND, CONTACT_EMAIL, DONATION_URL, FAQ, OPEN_COMMAND, SUPPORT_URL, sharedFaq } from "./product.ts";
 
-describe("support link", () => {
-  it("points at the support site", () => {
+describe("links", () => {
+  it("keeps help and donations apart", () => {
     assert.equal(SUPPORT_URL, "https://codefield.keremcanozkurt.com/support");
+    assert.equal(DONATION_URL, "https://codefield.keremcanozkurt.com/donation");
+    assert.equal(CONTACT_EMAIL, "hello@keremcanozkurt.com");
   });
 });
 
@@ -24,6 +26,7 @@ describe("FAQ", () => {
     for (const question of [
       "Does my source code leave my computer?",
       "Does Codefield upload my repository?",
+      "Does Codefield run code from the repository?",
       "Do I need GitHub?",
       "Can I analyze private repositories?",
       "Does Codefield support GitLab, Bitbucket or self-hosted Git?",
@@ -34,6 +37,7 @@ describe("FAQ", () => {
       "What does Impact Mode mean?",
       "What does Path Finder mean?",
       "Which languages are supported?",
+      "Where does Export PNG save the image?",
       "Why is there no drag and drop or Choose Folder?",
       "Is the source available?",
     ]) {
@@ -48,6 +52,12 @@ describe("FAQ", () => {
     for (const language of LANGUAGES) {
       const group = language.strength === "strong" ? strong : conservative.split("are resolved conservatively")[0];
       assert.ok(group.includes(language.name), language.name);
+    }
+  });
+
+  it("includes every shared answer as written", () => {
+    for (const entry of Object.values(sharedFaq({ analyzeAgain: "Analyze again" }))) {
+      assert.ok(FAQ.some((faq) => faq.question === entry.question && faq.answer === entry.answer), entry.question);
     }
   });
 

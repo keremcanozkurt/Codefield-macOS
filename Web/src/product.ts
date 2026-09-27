@@ -1,20 +1,23 @@
 // Stands in for upstream lib/product.ts in the app bundle: the FAQ of the
 // web edition describes the terminal and the local web server, which the
-// macOS app does not have. The build also writes this FAQ to faq.json for the
-// app's native FAQ window.
-import { LANGUAGES } from "../upstream/src/lib/languages/registry.ts";
+// macOS app does not have. Answers that are the same on both come from
+// upstream. The build also writes this FAQ to faq.json for the app's native
+// FAQ window.
+import { sharedFaq, type FaqEntry } from "../upstream/src/lib/product.ts";
 
-export const SUPPORT_URL = "https://codefield.keremcanozkurt.com/support";
-export const SUPPORT_NOTE = "Codefield is free for personal use. Support its continued development.";
+export {
+  CONTACT_EMAIL,
+  CONTACT_NOTE,
+  CONTACT_TITLE,
+  DONATION_LABEL,
+  DONATION_NOTE,
+  DONATION_URL,
+  SITE_URL,
+  SUPPORT_URL,
+  type FaqEntry,
+} from "../upstream/src/lib/product.ts";
 
-export type FaqEntry = {
-  question: string;
-  // Text in `backticks` is shown as code.
-  answer: string;
-};
-
-const strong = LANGUAGES.filter((language) => language.strength === "strong").map((language) => language.name);
-const conservative = LANGUAGES.filter((language) => language.strength === "conservative").map((language) => language.name);
+const shared = sharedFaq({ analyzeAgain: "Analyze Again" });
 
 export const FAQ: FaqEntry[] = [
   {
@@ -27,15 +30,11 @@ export const FAQ: FaqEntry[] = [
     answer:
       "Only the folders you open with Open Repository, drop onto the window, reopen from the recent list, or clone. The app runs in the macOS App Sandbox, which keeps it from reading anything else.",
   },
-  {
-    question: "Does Codefield run code from the repository?",
-    answer:
-      "No. Source and configuration files are read as text. Codefield never runs scripts, builds the project or runs `git` on it; the branch shown next to the name is read from the files in `.git`.",
-  },
+  shared.runsCode,
   {
     question: "Do I need GitHub?",
     answer:
-      "No. Codefield opens any folder on your Mac, whether or not it is a Git repository, and clones from any host your Git can reach: GitHub, GitLab, Bitbucket, Codeberg, Gitea, Forgejo or your own server.",
+      "No. Codefield opens any folder on your Mac, whether or not it is a Git repository. To clone a repository, Clone Git Repository uses your installed Git and your existing SSH or credential setup, whatever the host: GitHub, GitLab, Bitbucket, Codeberg, Gitea, Forgejo or your own server.",
   },
   {
     question: "How does Clone Git Repository work?",
@@ -45,46 +44,17 @@ export const FAQ: FaqEntry[] = [
   {
     question: "Can I analyze private repositories?",
     answer:
-      "Yes. If `git clone` works for you in Terminal, Clone Git Repository works too, with the same credentials. You can also clone in Terminal and open the folder.",
+      "Yes. Open a repository that is already on your Mac, or clone one with Clone Git Repository: Git uses the credentials you already have, and Codefield never asks for them.",
   },
-  {
-    question: "Do I need to commit or push changes before Codefield sees them?",
-    answer: "No. Codefield analyzes the files currently on disk. Use Analyze Again after making changes.",
-  },
-  {
-    question: "Does Codefield watch files automatically?",
-    answer: "Not currently. Use Analyze Again to read the folder again.",
-  },
-  {
-    question: "What do Graph and Structure mean?",
-    answer:
-      "Graph shows how the files depend on each other. Structure shows where the files and directories are in the repository. Both share the selection, search and filters.",
-  },
-  {
-    question: "What does Impact Mode mean?",
-    answer:
-      "It lists the files that could be affected by changing the selected file, according to the static dependency graph. It is not a guarantee of what happens at runtime.",
-  },
-  {
-    question: "What does Path Finder mean?",
-    answer:
-      "It finds the shortest directed chain of dependencies from one file to another in the static graph. A → B means A imports B.",
-  },
-  {
-    question: "Which languages are supported?",
-    answer: `${list(strong)} are resolved strongly: they name files or modules directly, so most dependencies show up. ${list(conservative)} are resolved conservatively: they mostly import namespaces or packages, so only references that map to exactly one file are kept.`,
-  },
+  shared.commitOrPush,
+  shared.watching,
+  shared.views,
+  shared.impact,
+  shared.pathFinder,
+  shared.languages,
   {
     question: "Where does Export PNG save the image?",
     answer: "In your Downloads folder.",
   },
-  {
-    question: "Is the source available?",
-    answer:
-      "Yes. Codefield is source-available: you can read, fork and modify it for personal and non-commercial use under the PolyForm Noncommercial license, and contributions are welcome. Commercial use needs the author's permission. See LICENSE in the repository for the full terms.",
-  },
+  shared.license,
 ];
-
-function list(names: string[]): string {
-  return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
-}

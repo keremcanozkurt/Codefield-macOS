@@ -1,7 +1,17 @@
 import { LANGUAGES } from "./languages/registry.ts";
 
-export const SUPPORT_URL = "https://codefield.keremcanozkurt.com/support";
-export const SUPPORT_NOTE = "Codefield is free for personal use. Support its continued development.";
+export const SITE_URL = "https://codefield.keremcanozkurt.com";
+// Help with using Codefield.
+export const SUPPORT_URL = `${SITE_URL}/support`;
+// Financial support for its development; the heart in the header.
+export const DONATION_URL = `${SITE_URL}/donation`;
+export const DONATION_LABEL = "Support Codefield";
+export const DONATION_NOTE =
+  "Codefield is free to use for permitted non-commercial use. If you'd like to support its continued development:";
+
+export const CONTACT_EMAIL = "hello@keremcanozkurt.com";
+export const CONTACT_TITLE = "Still have a question?";
+export const CONTACT_NOTE = "If the FAQ didn't fully answer it, you can reach us at";
 
 export const OPEN_COMMAND = "codefield .";
 export const CLONE_COMMAND = "codefield clone git@example.com:team/project.git";
@@ -15,21 +25,69 @@ export type FaqEntry = {
 const strong = LANGUAGES.filter((language) => language.strength === "strong").map((language) => language.name);
 const conservative = LANGUAGES.filter((language) => language.strength === "conservative").map((language) => language.name);
 
+// Answers that are the same on every edition of Codefield. The macOS app
+// builds its FAQ from these too, through its copy of this file, and adds the
+// questions that only apply to the Mac.
+export function sharedFaq({ analyzeAgain }: { analyzeAgain: string }) {
+  return {
+    runsCode: {
+      question: "Does Codefield run code from the repository?",
+      answer:
+        "No. Source and configuration files are read as text. Codefield never runs scripts or builds the project, and the branch shown next to the repository name is read from the files in `.git`, not by running `git`.",
+    },
+    commitOrPush: {
+      question: "Do I need to commit or push changes before Codefield sees them?",
+      answer: `No. Codefield analyzes the files currently on disk. Use ${analyzeAgain} after making changes.`,
+    },
+    watching: {
+      question: "Does Codefield watch files automatically?",
+      answer: `Not currently. Use ${analyzeAgain} to read the folder again.`,
+    },
+    views: {
+      question: "What do Graph and Structure mean?",
+      answer:
+        "Graph shows how the files depend on each other. Structure shows where the files and directories are in the repository. Both share the selection, search and filters.",
+    },
+    impact: {
+      question: "What does Impact Mode mean?",
+      answer:
+        "It lists the files that could be affected by changing the selected file, according to the static dependency graph. It is not a guarantee of what happens at runtime.",
+    },
+    pathFinder: {
+      question: "What does Path Finder mean?",
+      answer:
+        "It finds the shortest directed chain of dependencies from one file to another in the static graph. A → B means A imports B.",
+    },
+    languages: {
+      question: "Which languages are supported?",
+      answer: `${list(strong)} are resolved strongly: they name files or modules directly, so most dependencies show up. ${list(conservative)} are resolved conservatively: they mostly import namespaces or packages, so only references that map to exactly one file are kept.`,
+    },
+    license: {
+      question: "Is the source available?",
+      answer:
+        "Yes. Codefield is source-available: you can read, fork and modify it for personal and non-commercial use under the PolyForm Noncommercial license, and contributions are welcome. Commercial use needs the author's permission. See LICENSE in the repository for the full terms.",
+    },
+  } satisfies Record<string, FaqEntry>;
+}
+
+const shared = sharedFaq({ analyzeAgain: "Analyze again" });
+
 export const FAQ: FaqEntry[] = [
   {
     question: "Does my source code leave my computer?",
     answer:
-      "No. Codefield analyzes the repository on your machine and serves its interface from 127.0.0.1. It makes no network requests of its own and collects no analytics.",
+      "No. Codefield analyzes the repository on your machine and serves its interface from 127.0.0.1. It makes no network requests of its own and collects no analytics. Only `codefield clone` goes over the network, through your own Git.",
   },
   {
     question: "Does Codefield upload my repository?",
     answer:
       "No. The browser only receives the graph: file paths relative to the repository, sizes, languages and relationships. Source text stays in the local Codefield process.",
   },
+  shared.runsCode,
   {
     question: "Do I need GitHub?",
     answer:
-      "No. Codefield opens any folder on your machine. To clone a repository, `codefield clone` uses your installed Git and your existing SSH or credential setup, whatever the host.",
+      "No. Codefield opens any folder on your machine, whether or not it is a Git repository. To clone a repository, `codefield clone` uses your installed Git and your existing SSH or credential setup, whatever the host: GitHub, GitLab, Bitbucket, Codeberg, Gitea, Forgejo or your own server.",
   },
   {
     question: "Can I analyze private repositories?",
@@ -40,47 +98,26 @@ export const FAQ: FaqEntry[] = [
     question: "Does Codefield support GitLab, Bitbucket or self-hosted Git?",
     answer: "Yes. If `git clone` reaches the repository from your terminal, `codefield clone` does too.",
   },
-  {
-    question: "Do I need to commit or push changes before Codefield sees them?",
-    answer: "No. Codefield analyzes the files currently on disk. Use Analyze again after making changes.",
-  },
-  {
-    question: "Does Codefield watch files automatically?",
-    answer: "Not currently. Use Analyze again to read the folder again.",
-  },
+  shared.commitOrPush,
+  shared.watching,
   {
     question: "Do I need to rebuild Codefield after changing my project?",
     answer: "No. Analyze again re-reads your project; Codefield itself never needs rebuilding.",
   },
+  shared.views,
+  shared.impact,
+  shared.pathFinder,
+  shared.languages,
   {
-    question: "What do Graph and Structure mean?",
-    answer:
-      "Graph shows how the files depend on each other. Structure shows where the files and directories are in the repository. Both share the selection, search and filters.",
-  },
-  {
-    question: "What does Impact Mode mean?",
-    answer:
-      "It lists the files that could be affected by changing the selected file, according to the static dependency graph. It is not a guarantee of what happens at runtime.",
-  },
-  {
-    question: "What does Path Finder mean?",
-    answer:
-      "It finds the shortest directed chain of dependencies from one file to another in the static graph. A → B means A imports B.",
-  },
-  {
-    question: "Which languages are supported?",
-    answer: `${list(strong)} are resolved strongly: they name files or modules directly, so most dependencies show up. ${list(conservative)} are resolved conservatively: they mostly import namespaces or packages, so only references that map to exactly one file are kept.`,
+    question: "Where does Export PNG save the image?",
+    answer: "Your browser saves it like any other download, usually in your Downloads folder.",
   },
   {
     question: "Why is there no drag and drop or Choose Folder?",
     answer:
       "Codefield only reads the folder you start it with from the terminal. Keeping that choice out of the browser means no web page can ask Codefield to read other folders on your computer. To open another repository, start Codefield again from that folder.",
   },
-  {
-    question: "Is the source available?",
-    answer:
-      "Yes. Codefield is source-available: you can read, fork and modify it for personal and non-commercial use under the PolyForm Noncommercial license, and contributions are welcome. Commercial use needs the author's permission. See LICENSE in the repository for the full terms.",
-  },
+  shared.license,
 ];
 
 function list(names: string[]): string {

@@ -46,7 +46,9 @@ struct AppCommands: Commands {
         CommandGroup(replacing: .help) {
             Button("Codefield FAQ") { window?.showFAQ() }
                 .disabled(window == nil)
-            Button("Support Codefield") { ExternalLinks.open(ExternalLinks.support) }
+            Button("Get Help with Codefield") { ExternalLinks.open(ExternalLinks.support) }
+            Divider()
+            Button("Donate to Codefield") { ExternalLinks.open(ExternalLinks.donation) }
         }
     }
 }
