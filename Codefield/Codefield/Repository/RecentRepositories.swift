@@ -28,7 +28,15 @@ nonisolated struct Bookmarks: Sendable {
 
 @Observable
 final class RecentRepositoryStore {
-    static let shared = RecentRepositoryStore()
+    static let shared: RecentRepositoryStore = {
+        #if DEBUG
+        if UITestFixture.isActive {
+            UserDefaults.standard.removeObject(forKey: "UITestRecentRepositories")
+            return RecentRepositoryStore(key: "UITestRecentRepositories")
+        }
+        #endif
+        return RecentRepositoryStore()
+    }()
     static let limit = 10
 
     private(set) var items: [RecentRepository]
@@ -69,9 +77,20 @@ final class RecentRepositoryStore {
         return resolved.url
     }
 
-    // For display only; nil when the folder can no longer be found.
+    // A security-scoped URL for a folder the app can reach right now only
+    // through another grant, such as the parent folder a clone went into.
+    func bookmarkedURL(for url: URL) -> URL? {
+        guard let data = try? bookmarks.make(url) else { return nil }
+        return try? bookmarks.resolve(data).url
+    }
+
+    // The folder the repository is in, for display; nil when the repository
+    // can no longer be found.
     func location(of item: RecentRepository) -> String? {
-        (try? bookmarks.resolve(item.bookmark)).map { Self.abbreviatingHome(Self.standardPath($0.url)) }
+        guard let url = try? bookmarks.resolve(item.bookmark).url,
+              FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
+        else { return nil }
+        return Self.abbreviatingHome(Self.standardPath(url.deletingLastPathComponent()))
     }
 
     func remove(_ item: RecentRepository) {
@@ -88,7 +107,7 @@ final class RecentRepositoryStore {
         if let data = try? JSONEncoder().encode(items) { defaults.set(data, forKey: key) }
     }
 
-    private nonisolated static func standardPath(_ url: URL) -> String {
+    nonisolated static func standardPath(_ url: URL) -> String {
         url.standardizedFileURL.path(percentEncoded: false).trimmingSuffix("/")
     }
 

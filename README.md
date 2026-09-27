@@ -13,7 +13,8 @@ In development. The app builds and runs from Xcode; there is no signed or notari
 The window is SwiftUI. The workspace inside it is Codefield's own web interface, bundled into the app and shown in a `WKWebView`.
 
 - **Swift** owns the file system: the open panel, drag and drop, recent repositories (security-scoped bookmarks), listing the folder and reading source files. It is the only part that touches the disk.
-- **The page** runs Codefield's TypeScript analysis and draws the result. The analysis runs in a web worker inside the web view, so the app needs no Node.js, no local server and no network access.
+- **GitCloneService**, a small XPC service inside the app, runs `git clone` for Clone Git Repository. It is the only part that uses the network.
+- **The page** runs Codefield's TypeScript analysis and draws the result. The analysis runs in a web worker inside the web view, so analysis needs no Node.js, no local server and no network access.
 
 An analysis goes like this:
 
@@ -32,16 +33,19 @@ Codefield/                       Xcode project
     Analysis/                    folder listing and file reading
     Bridge/                      web view, URL scheme handler, messages
     Repository/                  opening folders, recent repositories, Git details
-    Window/                      windows, start screen, toolbar, menus
-    Resources/Workspace/         the built workspace page (generated)
+    Window/                      windows, start screen, clone sheet, FAQ, menus
+    Resources/Workspace/         the built workspace page and FAQ text (generated)
+  GitCloneService/               the XPC service that runs git clone
+  Shared/                        remote and destination checks, used by both
   CodefieldTests/
+  CodefieldUITests/
 Web/
   upstream/                      Codefield's shared source, copied unchanged
   src/                           the page's host code and the analysis worker
   scripts/                       sync-upstream.mjs, build.mjs
 ```
 
-`Web/upstream` is a copy of `src/lib`, `src/components` and `src/app/globals.css` from the Codefield repository, at the commit in `Web/upstream/REVISION`. It is not edited by hand. `Web/src` holds what differs on the Mac: the page that hosts the workspace, the analysis worker, the FAQ and error text.
+`Web/upstream` is a copy of `src/lib`, `src/components` and `src/app/globals.css` from the Codefield repository, at the commit in `Web/upstream/REVISION`. It is not edited by hand. `Web/src` holds what differs on the Mac: the page that hosts the workspace, the analysis worker, the FAQ and error text. The build also writes the FAQ to `faq.json`, which the native FAQ window reads, so the text has one source.
 
 ## Building
 
@@ -57,6 +61,8 @@ Choose the Codefield scheme and run. From the command line:
 xcodebuild -project Codefield/Codefield.xcodeproj -scheme Codefield -configuration Debug build
 xcodebuild -project Codefield/Codefield.xcodeproj -scheme Codefield test
 ```
+
+The UI tests drive the app with real key events. The first run asks macOS to enable UI automation, which needs an administrator's approval.
 
 The built workspace page is checked in, so Xcode does not need Node.js. After changing anything under `Web/`, rebuild it with Node.js 22.18 or later:
 
@@ -80,24 +86,31 @@ npm run build
 
 Open a repository with Open Repository (⌘O), by dragging its folder onto the window, or from the recent list. Any folder works, Git repository or not. The window title shows the folder name, and the subtitle shows the branch and origin read from `.git`.
 
+File > Clone Git Repository clones from any Git host (SSH, HTTPS, `git://` or a local path) into a folder you choose, then opens the clone. It uses the Git installed on your Mac (Homebrew's, or the Xcode Command Line Tools) and your existing SSH keys, agent and credential helper. Codefield never asks for a password or token. If the host key is unknown or authentication fails, the sheet shows Git's own message; connect once with `ssh` or `git` in Terminal to set it up.
+
 Analyze Again (⌘R) reads the folder again as it is on disk, after edits, pulls or branch switches; the view, selection and filters stay where they were, as far as the files still exist. Find File (⌘F) moves to the workspace search. One repository is open per window; File > New Window opens another.
+
+Escape leaves the innermost state first: the workspace's own full screen, then Path Finder or Impact Mode, then the selection. It never closes the window or leaves macOS full screen.
+
+The FAQ and the support link are on the start screen and in the window toolbar.
 
 ## Privacy and security
 
-- The app runs in the App Sandbox with read-only access to the folders you open, plus the Downloads folder for PNG exports. It also has the outgoing-network entitlement, because WebKit's networking process does not run in a sandboxed app without it, even for a page served from the app itself. Codefield makes no network requests of its own.
+- The app runs in the App Sandbox with read-only access to the folders you open, plus the Downloads folder for PNG exports. It also has the outgoing-network entitlement, because WebKit's networking process does not run in a sandboxed app without it, even for a page served from the app itself. Apart from Git during a clone, Codefield makes no network requests.
 - The workspace page is served from the app bundle under a private URL scheme. It cannot navigate anywhere else, and its content security policy allows no remote scripts, styles, fonts or connections.
 - The page never receives a path to open. It receives repository-relative paths and file contents that Swift has read, and Swift reads only files from its own listing of the opened folder.
 - Repository code is never run. Git details come from reading `.git/HEAD` and `.git/config`, not from running `git`.
+- Cloning runs outside the sandbox, in GitCloneService, because Git needs your SSH keys and configuration. The service only accepts connections from the Codefield app itself. The remote is checked before Git sees it: remotes that start with `-`, remote helpers such as `ext::`, unknown URL schemes and control characters are refused, and Git runs with `protocol.ext.allow=never`. Git is started directly with an argument list, never through a shell, with terminal prompts turned off. The destination must be a new or empty folder inside the one you chose. Host key checking is left to SSH.
 - Recent repositories are stored in the app's preferences as security-scoped bookmarks (how macOS remembers that you granted access to a folder), with the folder's name and when it was opened. No source code or credentials are stored.
 - Links to the Codefield site open in your default browser.
 
 ## Limitations
 
 - Everything listed under Limitations in the Codefield README applies: static analysis only, and relationships that exist only at runtime are not found.
-- No clone from inside the app. Clone with Git, then open the folder.
 - No file watching. Use Analyze Again.
 - The Git branch is not shown when you open a subfolder of a repository: the sandbox does not allow reading the parent folders.
-- The FAQ is available once a repository is open.
+- Clone has no progress beyond "Cloning…", and no options for branch, depth or submodules.
+- Repositories with more than 10,000 source files work, but take tens of seconds to analyze and lay out, and the workspace page can use several hundred MB of memory.
 
 ## License
 

@@ -7,37 +7,161 @@
 
 import XCTest
 
+// Drives the real app with WebKit and real key events, on the fixture
+// repository: app.ts → a.ts → b.ts → c.ts, plus an isolated lonely.ts.
 final class CodefieldUITests: XCTestCase {
+    private var app: XCUIApplication!
+
+    private var web: XCUIElement { app.webViews.firstMatch }
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        app = XCUIApplication()
+        app.launchArguments = ["-CodefieldUITestFixture"]
+        app.launch()
+        XCTAssertTrue(web.staticTexts["Overview"].waitForExistence(timeout: 30), "The workspace did not appear")
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        app.terminate()
     }
 
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
+    // MARK: Escape
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
+    func testEscapeLeavesImpactThenClearsSelection() {
+        select("b.ts")
+        web.buttons["Trace impact"].click()
+        XCTAssertTrue(web.buttons["Exit impact"].waitForExistence(timeout: 5))
+
+        pressEscape()
+        XCTAssertTrue(web.buttons["Trace impact"].waitForExistence(timeout: 5))
+        XCTAssertFalse(web.buttons["Exit impact"].exists)
+
+        pressEscape()
+        XCTAssertTrue(waitForDisappearance(web.buttons["Trace impact"]))
     }
 
-    @MainActor
-    func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+    func testEscapeCancelsChoosingAPathBeforeTheSelection() {
+        select("app.ts")
+        web.buttons["Find path"].click()
+        XCTAssertTrue(web.buttons["Cancel path"].waitForExistence(timeout: 5))
+
+        pressEscape()
+        XCTAssertTrue(web.buttons["Find path"].waitForExistence(timeout: 5))
+        XCTAssertTrue(web.buttons["Trace impact"].exists)
+
+        pressEscape()
+        XCTAssertTrue(waitForDisappearance(web.buttons["Trace impact"]))
+    }
+
+    func testEscapeLeavesWorkspaceFullScreenBeforeAnythingElse() {
+        select("b.ts")
+        web.buttons["Trace impact"].click()
+        web.buttons["Full screen"].click()
+        XCTAssertTrue(web.buttons["Exit full screen"].waitForExistence(timeout: 5))
+
+        pressEscape()
+        XCTAssertTrue(web.buttons["Full screen"].waitForExistence(timeout: 5))
+        XCTAssertTrue(web.buttons["Exit impact"].exists, "Impact Mode should survive leaving full screen")
+    }
+
+    func testEscapeNeverLeavesNativeFullScreen() {
+        app.menuBars.menuBarItems["View"].click()
+        app.menuBars.menuItems["Enter Full Screen"].click()
+        XCTAssertTrue(waitForMenuItem("Exit Full Screen"))
+
+        select("b.ts")
+        pressEscape()
+        XCTAssertTrue(waitForDisappearance(web.buttons["Trace impact"]))
+        pressEscape()
+        pressEscape()
+        XCTAssertTrue(waitForMenuItem("Exit Full Screen"), "Escape in the workspace must not leave native full screen")
+
+        app.menuBars.menuBarItems["View"].click()
+        app.menuBars.menuItems["Exit Full Screen"].click()
+    }
+
+    func testEscapeClosesTheFAQAndKeepsTheSelection() {
+        select("b.ts")
+        app.toolbars.buttons["FAQ"].click()
+        XCTAssertTrue(app.staticTexts["Frequently asked questions"].waitForExistence(timeout: 5))
+
+        pressEscape()
+        XCTAssertTrue(waitForDisappearance(app.staticTexts["Frequently asked questions"]))
+        XCTAssertTrue(web.buttons["Trace impact"].exists)
+    }
+
+    // MARK: Path Finder
+
+    func testPathFinderFollowsImportsAndReverses() {
+        select("app.ts")
+        web.buttons["Find path"].click()
+        XCTAssertTrue(web.buttons["Cancel path"].waitForExistence(timeout: 5))
+
+        // While a destination is being chosen, picking a file completes the path.
+        select("c.ts", expectInspector: false)
+        XCTAssertTrue(text(beginningWith: "Path found").waitForExistence(timeout: 5))
+        XCTAssertTrue(web.buttons["Exit path"].exists)
+        for name in ["app.ts", "a.ts", "b.ts", "c.ts"] {
+            XCTAssertTrue(web.buttons.containing(NSPredicate(format: "label BEGINSWITH %@", name)).firstMatch.exists, name)
         }
+
+        // c.ts imports nothing, so nothing leads from it back to app.ts.
+        web.buttons["Reverse"].click()
+        XCTAssertTrue(text(beginningWith: "No directed dependency path found").waitForExistence(timeout: 5))
+
+        web.buttons["Try the reverse direction"].click()
+        XCTAssertTrue(text(beginningWith: "Path found").waitForExistence(timeout: 5))
+
+        pressEscape()
+        XCTAssertTrue(web.buttons["Find path"].waitForExistence(timeout: 5))
+    }
+
+    func testPathFinderReportsFilesWithNoPath() {
+        select("app.ts")
+        web.buttons["Find path"].click()
+        select("lonely.ts", expectInspector: false)
+        XCTAssertTrue(text(beginningWith: "No directed dependency path found").waitForExistence(timeout: 5))
+    }
+
+    // MARK: Windows
+
+    func testNewWindowStartsEmptyAndLeavesTheFirstAlone() {
+        select("b.ts")
+        app.typeKey("n", modifierFlags: .command)
+        XCTAssertTrue(app.buttons["Clone Git Repository…"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.windows.count, 2)
+        XCTAssertTrue(web.buttons["Trace impact"].exists, "The first window keeps its selection")
+    }
+
+    // MARK: Helpers
+
+    private func select(_ name: String, expectInspector: Bool = true) {
+        app.typeKey("f", modifierFlags: .command)
+        app.typeText(name)
+        app.typeKey(.return, modifierFlags: [])
+        if expectInspector {
+            XCTAssertTrue(web.buttons["Trace impact"].waitForExistence(timeout: 5), "\(name) was not selected")
+        }
+    }
+
+    private func pressEscape() {
+        app.typeKey(.escape, modifierFlags: [])
+    }
+
+    private func text(beginningWith prefix: String) -> XCUIElement {
+        web.staticTexts.matching(NSPredicate(format: "value BEGINSWITH %@ OR label BEGINSWITH %@", prefix, prefix)).firstMatch
+    }
+
+    private func waitForDisappearance(_ element: XCUIElement, timeout: TimeInterval = 5) -> Bool {
+        let gone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: element)
+        return XCTWaiter().wait(for: [gone], timeout: timeout) == .completed
+    }
+
+    private func waitForMenuItem(_ title: String) -> Bool {
+        app.menuBars.menuBarItems["View"].click()
+        let found = app.menuBars.menuItems[title].waitForExistence(timeout: 5)
+        app.typeKey(.escape, modifierFlags: [])
+        return found
     }
 }

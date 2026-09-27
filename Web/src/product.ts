@@ -1,6 +1,7 @@
 // Stands in for upstream lib/product.ts in the app bundle: the FAQ of the
 // web edition describes the terminal and the local web server, which the
-// macOS app does not have.
+// macOS app does not have. The build also writes this FAQ to faq.json for the
+// app's native FAQ window.
 import { LANGUAGES } from "../upstream/src/lib/languages/registry.ts";
 
 export const SUPPORT_URL = "https://codefield.keremcanozkurt.com/support";
@@ -19,12 +20,12 @@ export const FAQ: FaqEntry[] = [
   {
     question: "Does my source code leave my Mac?",
     answer:
-      "No. Codefield reads the folder on your Mac and analyzes it inside the app. It makes no network requests of its own and collects no analytics.",
+      "No. Codefield reads the folder on your Mac and analyzes it inside the app. It makes no network requests of its own and collects no analytics. Only Clone Git Repository goes over the network, through your own Git.",
   },
   {
     question: "Which folders can Codefield read?",
     answer:
-      "Only the folders you open with Open Repository, drop onto the window, or reopen from the recent list. The app runs in the macOS App Sandbox, which keeps it from reading anything else.",
+      "Only the folders you open with Open Repository, drop onto the window, reopen from the recent list, or clone. The app runs in the macOS App Sandbox, which keeps it from reading anything else.",
   },
   {
     question: "Does Codefield run code from the repository?",
@@ -33,12 +34,18 @@ export const FAQ: FaqEntry[] = [
   },
   {
     question: "Do I need GitHub?",
-    answer: "No. Codefield opens any folder on your Mac, whether or not it is a Git repository.",
+    answer:
+      "No. Codefield opens any folder on your Mac, whether or not it is a Git repository, and clones from any host your Git can reach: GitHub, GitLab, Bitbucket, Codeberg, Gitea, Forgejo or your own server.",
+  },
+  {
+    question: "How does Clone Git Repository work?",
+    answer:
+      "It runs the Git installed on your Mac in a small helper outside the sandbox, so your SSH keys, SSH agent, `~/.ssh/config`, `known_hosts` and credential helpers work as they do in Terminal. Codefield never reads them, never asks for passwords or tokens, and never accepts an unknown SSH host key for you. The clone is an ordinary Git folder where you chose; Codefield never updates or deletes it.",
   },
   {
     question: "Can I analyze private repositories?",
     answer:
-      "Yes. Clone the repository with Git as you normally do, then open the folder. Codefield never asks for credentials.",
+      "Yes. If `git clone` works for you in Terminal, Clone Git Repository works too, with the same credentials. You can also clone in Terminal and open the folder.",
   },
   {
     question: "Do I need to commit or push changes before Codefield sees them?",

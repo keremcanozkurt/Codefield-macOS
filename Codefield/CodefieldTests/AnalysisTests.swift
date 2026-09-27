@@ -126,4 +126,38 @@ struct SourceReaderTests {
         let configs = await SourceLoader.readConfigs(reader, paths: ["a.ts", "bad.ts", "missing.json"])
         #expect(configs == [SourceText(path: "a.ts", text: "aaaa")])
     }
+
+    // No limit on the number of files: everything is listed and read, in
+    // batches small enough that neither side holds a second full copy.
+    @Test func readsLargeRepositoriesInBoundedBatches() async throws {
+        let folder = try TemporaryFolder()
+        let content = Data("export const value = 1;\n".utf8)
+        for directory in 0..<60 {
+            let path = folder.path + "/d\(directory)"
+            try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
+            for file in 0..<200 {
+                FileManager.default.createFile(atPath: path + "/f\(file).ts", contents: content)
+            }
+        }
+
+        let listing = try await RepositoryWalker.list(root: folder.path)
+        #expect(listing.files.count == 12_000)
+
+        let reader = SourceReader(root: folder.path)
+        let paths = listing.files.map(\.path)
+        var next = 0
+        var units = 0
+        var read = 0
+        var batches = 0
+        while next < paths.count {
+            let batch = try await SourceLoader.readBatch(reader, paths: paths, from: next, textUnits: units)
+            #expect(batch.files.count + batch.skipped.count <= SourceLoader.maxBatchFiles)
+            next = batch.next
+            units = batch.textUnits
+            read += batch.files.count
+            batches += 1
+        }
+        #expect(read == 12_000)
+        #expect(batches == 30)
+    }
 }

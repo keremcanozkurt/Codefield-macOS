@@ -1,0 +1,62 @@
+{
+  "supportURL": "https://codefield.keremcanozkurt.com/support",
+  "supportNote": "Codefield is free for personal use. Support its continued development.",
+  "entries": [
+    {
+      "question": "Does my source code leave my Mac?",
+      "answer": "No. Codefield reads the folder on your Mac and analyzes it inside the app. It makes no network requests of its own and collects no analytics. Only Clone Git Repository goes over the network, through your own Git."
+    },
+    {
+      "question": "Which folders can Codefield read?",
+      "answer": "Only the folders you open with Open Repository, drop onto the window, reopen from the recent list, or clone. The app runs in the macOS App Sandbox, which keeps it from reading anything else."
+    },
+    {
+      "question": "Does Codefield run code from the repository?",
+      "answer": "No. Source and configuration files are read as text. Codefield never runs scripts, builds the project or runs `git` on it; the branch shown next to the name is read from the files in `.git`."
+    },
+    {
+      "question": "Do I need GitHub?",
+      "answer": "No. Codefield opens any folder on your Mac, whether or not it is a Git repository, and clones from any host your Git can reach: GitHub, GitLab, Bitbucket, Codeberg, Gitea, Forgejo or your own server."
+    },
+    {
+      "question": "How does Clone Git Repository work?",
+      "answer": "It runs the Git installed on your Mac in a small helper outside the sandbox, so your SSH keys, SSH agent, `~/.ssh/config`, `known_hosts` and credential helpers work as they do in Terminal. Codefield never reads them, never asks for passwords or tokens, and never accepts an unknown SSH host key for you. The clone is an ordinary Git folder where you chose; Codefield never updates or deletes it."
+    },
+    {
+      "question": "Can I analyze private repositories?",
+      "answer": "Yes. If `git clone` works for you in Terminal, Clone Git Repository works too, with the same credentials. You can also clone in Terminal and open the folder."
+    },
+    {
+      "question": "Do I need to commit or push changes before Codefield sees them?",
+      "answer": "No. Codefield analyzes the files currently on disk. Use Analyze Again after making changes."
+    },
+    {
+      "question": "Does Codefield watch files automatically?",
+      "answer": "Not currently. Use Analyze Again to read the folder again."
+    },
+    {
+      "question": "What do Graph and Structure mean?",
+      "answer": "Graph shows how the files depend on each other. Structure shows where the files and directories are in the repository. Both share the selection, search and filters."
+    },
+    {
+      "question": "What does Impact Mode mean?",
+      "answer": "It lists the files that could be affected by changing the selected file, according to the static dependency graph. It is not a guarantee of what happens at runtime."
+    },
+    {
+      "question": "What does Path Finder mean?",
+      "answer": "It finds the shortest directed chain of dependencies from one file to another in the static graph. A → B means A imports B."
+    },
+    {
+      "question": "Which languages are supported?",
+      "answer": "TypeScript, JavaScript, Python, Rust, Java, C, C++, PHP, Ruby, Dart, Elixir and Lua are resolved strongly: they name files or modules directly, so most dependencies show up. Go, Kotlin, C#, Scala and Swift are resolved conservatively: they mostly import namespaces or packages, so only references that map to exactly one file are kept."
+    },
+    {
+      "question": "Where does Export PNG save the image?",
+      "answer": "In your Downloads folder."
+    },
+    {
+      "question": "Is the source available?",
+      "answer": "Yes. Codefield is source-available: you can read, fork and modify it for personal and non-commercial use under the PolyForm Noncommercial license, and contributions are welcome. Commercial use needs the author's permission. See LICENSE in the repository for the full terms."
+    }
+  ]
+}

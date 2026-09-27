@@ -44,15 +44,15 @@ nonisolated enum RepositoryRoot {
 // the process; those resolved from bookmarks are not until this starts.
 nonisolated final class RepositoryAccess: Sendable {
     let url: URL
-    private let started: Bool
+    private let isStarted: Bool
 
     init(url: URL) {
         self.url = url
-        started = url.startAccessingSecurityScopedResource()
+        isStarted = url.startAccessingSecurityScopedResource()
     }
 
     deinit {
-        if started { url.stopAccessingSecurityScopedResource() }
+        if isStarted { url.stopAccessingSecurityScopedResource() }
     }
 }
 

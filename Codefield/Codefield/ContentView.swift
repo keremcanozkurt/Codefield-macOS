@@ -26,6 +26,8 @@ struct ContentView: View {
         .toolbarBackground(Theme.background, for: .windowToolbar)
         .focusedSceneValue(\.repositoryWindow, model)
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $model.isClonePresented) { CloneView(model: model) }
+        .sheet(isPresented: $model.isFAQPresented) { FAQView() }
         .alert(
             "Could not open the folder",
             isPresented: Binding(get: { model.alert != nil }, set: { if !$0 { model.alert = nil } }),
@@ -34,6 +36,21 @@ struct ContentView: View {
             Button("OK") {}
         } message: { message in
             Text(message)
+        }
+        .alert(
+            "“\(model.unavailableRecent?.name ?? "")” is not available",
+            isPresented: Binding(get: { model.unavailableRecent != nil }, set: { if !$0 { model.unavailableRecent = nil } }),
+            presenting: model.unavailableRecent
+        ) { item in
+            Button("Remove from Recent Repositories", role: .destructive) { model.recents.remove(item) }
+            Button("Keep", role: .cancel) {}
+        } message: { _ in
+            Text("It may have been moved, renamed or deleted, or the drive it is on is not connected.")
+        }
+        .onAppear {
+            #if DEBUG
+            model.openUITestFixtureIfRequested()
+            #endif
         }
         .onDisappear { model.close() }
     }
@@ -44,6 +61,7 @@ private struct WindowToolbar: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
+            // The start screen has these as its own buttons and links.
             if model.repository != nil {
                 if model.isAnalyzing && model.isRevealed {
                     ProgressView()
@@ -57,10 +75,9 @@ private struct WindowToolbar: ToolbarContent {
                     .help("Open another repository in this window (⌘O)")
                 Button("FAQ", systemImage: "questionmark.circle") { model.showFAQ() }
                     .help("Frequently asked questions")
-                    .disabled(!model.isRevealed)
+                Button("Support", systemImage: "heart") { ExternalLinks.open(ExternalLinks.support) }
+                    .help("Codefield is free for personal use. Support its continued development.")
             }
-            Button("Support", systemImage: "heart") { ExternalLinks.open(ExternalLinks.support) }
-                .help("Codefield is free for personal use. Support its continued development.")
         }
     }
 }

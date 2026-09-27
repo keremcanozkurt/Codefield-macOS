@@ -14,7 +14,7 @@ export type HostState = {
   result: DiscoveryResult | null;
 };
 
-export type HostEvent = "showFAQ" | "focusSearch";
+export type HostEvent = "focusSearch";
 
 const INITIAL: HostState = { session: 0, repository: null, loading: false, previous: null, result: null };
 
@@ -43,9 +43,6 @@ export class HostController {
 
   async receive(message: NativeMessage): Promise<BeginReply | Outcome | null> {
     switch (message.type) {
-      case "workspace.showFAQ":
-        this.emit("showFAQ");
-        return null;
       case "workspace.focusSearch":
         this.emit("focusSearch");
         return null;

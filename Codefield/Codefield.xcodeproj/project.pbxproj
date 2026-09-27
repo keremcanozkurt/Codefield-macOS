@@ -6,6 +6,10 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		58A1C0013068A00000CF0001 /* GitCloneService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 58A1C0043068A00000CF0001 /* GitCloneService.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		581591BF3068676D005BBE86 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,12 +25,32 @@
 			remoteGlobalIDString = 581591B03068676A005BBE86;
 			remoteInfo = Codefield;
 		};
+		58A1C0023068A00000CF0001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 581591A93068676A005BBE86 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58A1C00A3068A00000CF0001;
+			remoteInfo = GitCloneService;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		58A1C0033068A00000CF0001 /* Embed XPC Services */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
+			dstSubfolder = Product;
+			files = (
+				58A1C0013068A00000CF0001 /* GitCloneService.xpc in Embed XPC Services */,
+			);
+			name = "Embed XPC Services";
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		581591B13068676A005BBE86 /* Codefield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Codefield.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		581591BE3068676D005BBE86 /* CodefieldTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CodefieldTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		581591C83068676D005BBE86 /* CodefieldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CodefieldUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		58A1C0043068A00000CF0001 /* GitCloneService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = GitCloneService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -43,6 +67,16 @@
 		581591CB3068676D005BBE86 /* CodefieldUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CodefieldUITests;
+			sourceTree = "<group>";
+		};
+		58A1C0053068A00000CF0001 /* GitCloneService */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = GitCloneService;
+			sourceTree = "<group>";
+		};
+		58A1C0063068A00000CF0001 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -63,6 +97,11 @@
 			files = (
 			);
 		};
+		58A1C0073068A00000CF0001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -72,6 +111,8 @@
 				581591B33068676A005BBE86 /* Codefield */,
 				581591C13068676D005BBE86 /* CodefieldTests */,
 				581591CB3068676D005BBE86 /* CodefieldUITests */,
+				58A1C0063068A00000CF0001 /* Shared */,
+				58A1C0053068A00000CF0001 /* GitCloneService */,
 				581591B23068676A005BBE86 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -82,6 +123,7 @@
 				581591B13068676A005BBE86 /* Codefield.app */,
 				581591BE3068676D005BBE86 /* CodefieldTests.xctest */,
 				581591C83068676D005BBE86 /* CodefieldUITests.xctest */,
+				58A1C0043068A00000CF0001 /* GitCloneService.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,11 +138,16 @@
 				581591AD3068676A005BBE86 /* Sources */,
 				581591AE3068676A005BBE86 /* Frameworks */,
 				581591AF3068676A005BBE86 /* Resources */,
+				58A1C0033068A00000CF0001 /* Embed XPC Services */,
 			);
 			buildRules = (
 			);
+			dependencies = (
+				58A1C00B3068A00000CF0001 /* PBXTargetDependency */,
+			);
 			fileSystemSynchronizedGroups = (
 				581591B33068676A005BBE86 /* Codefield */,
+				58A1C0063068A00000CF0001 /* Shared */,
 			);
 			name = Codefield;
 			productName = Codefield;
@@ -149,6 +196,25 @@
 			productReference = 581591C83068676D005BBE86 /* CodefieldUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		58A1C00A3068A00000CF0001 /* GitCloneService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 58A1C00E3068A00000CF0001 /* Build configuration list for PBXNativeTarget "GitCloneService" */;
+			buildPhases = (
+				58A1C0093068A00000CF0001 /* Sources */,
+				58A1C0073068A00000CF0001 /* Frameworks */,
+				58A1C0083068A00000CF0001 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				58A1C0053068A00000CF0001 /* GitCloneService */,
+				58A1C0063068A00000CF0001 /* Shared */,
+			);
+			name = GitCloneService;
+			productName = GitCloneService;
+			productReference = 58A1C0043068A00000CF0001 /* GitCloneService.xpc */;
+			productType = "com.apple.product-type.xpc-service";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -170,6 +236,9 @@
 						CreatedOnToolsVersion = 27.0;
 						TestTargetID = 581591B03068676A005BBE86;
 					};
+					58A1C00A3068A00000CF0001 = {
+						CreatedOnToolsVersion = 27.0;
+					};
 				};
 			};
 			buildConfigurationList = 581591AC3068676A005BBE86 /* Build configuration list for PBXProject "Codefield" */;
@@ -189,6 +258,7 @@
 				581591B03068676A005BBE86 /* Codefield */,
 				581591BD3068676D005BBE86 /* CodefieldTests */,
 				581591C73068676D005BBE86 /* CodefieldUITests */,
+				58A1C00A3068A00000CF0001 /* GitCloneService */,
 			);
 		};
 /* End PBXProject section */
@@ -205,6 +275,11 @@
 			);
 		};
 		581591C63068676D005BBE86 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		58A1C0083068A00000CF0001 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -227,6 +302,11 @@
 			files = (
 			);
 		};
+		58A1C0093068A00000CF0001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -239,6 +319,11 @@
 			isa = PBXTargetDependency;
 			target = 581591B03068676A005BBE86 /* Codefield */;
 			targetProxy = 581591C93068676D005BBE86 /* PBXContainerItemProxy */;
+		};
+		58A1C00B3068A00000CF0001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58A1C00A3068A00000CF0001 /* GitCloneService */;
+			targetProxy = 58A1C0023068A00000CF0001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -374,7 +459,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Kerem Can Özkurt. PolyForm Noncommercial License 1.0.0.";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.Codefield;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -406,7 +491,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Kerem Can Özkurt. PolyForm Noncommercial License 1.0.0.";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.Codefield;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -429,7 +514,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.CodefieldTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -451,7 +536,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.CodefieldTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -472,7 +557,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.CodefieldUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -493,7 +578,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 27.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.CodefieldUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -504,6 +589,50 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = Codefield;
+			};
+			name = Release;
+		};
+		58A1C00C3068A00000CF0001 /* Debug configuration for PBXNativeTarget "GitCloneService" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "GitCloneService-Info.plist";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Kerem Can Özkurt. PolyForm Noncommercial License 1.0.0.";
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.Codefield.GitCloneService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		58A1C00D3068A00000CF0001 /* Release configuration for PBXNativeTarget "GitCloneService" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "GitCloneService-Info.plist";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Kerem Can Özkurt. PolyForm Noncommercial License 1.0.0.";
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keremcanozkurt.Codefield.GitCloneService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -539,6 +668,14 @@
 			buildConfigurations = (
 				581591D73068676D005BBE86 /* Debug configuration for PBXNativeTarget "CodefieldUITests" */,
 				581591D83068676D005BBE86 /* Release configuration for PBXNativeTarget "CodefieldUITests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		58A1C00E3068A00000CF0001 /* Build configuration list for PBXNativeTarget "GitCloneService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58A1C00C3068A00000CF0001 /* Debug configuration for PBXNativeTarget "GitCloneService" */,
+				58A1C00D3068A00000CF0001 /* Release configuration for PBXNativeTarget "GitCloneService" */,
 			);
 			defaultConfigurationName = Release;
 		};

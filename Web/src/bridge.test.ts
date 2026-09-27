@@ -22,7 +22,6 @@ describe("parseNativeMessage", () => {
     assert.ok(parseNativeMessage({ type: "analysis.finish", run: 2 }));
     assert.ok(parseNativeMessage({ type: "analysis.cancel", run: 2 }));
     assert.ok(parseNativeMessage({ type: "analysis.fail", run: 2, error: "resources_exceeded" }));
-    assert.deepEqual(parseNativeMessage({ type: "workspace.showFAQ" }), { type: "workspace.showFAQ" });
     assert.deepEqual(parseNativeMessage({ type: "workspace.focusSearch" }), { type: "workspace.focusSearch" });
   });
 
@@ -48,6 +47,7 @@ describe("parseNativeMessage", () => {
       { type: "analysis.sources", run: 1, files: [["a.ts"]], skipped: [] },
       { type: "analysis.configs", run: 1, files: {} },
       { type: "analysis.fail", run: 1, error: "root_unavailable " },
+      { type: "workspace.showFAQ" },
     ];
     for (const message of rejected) assert.equal(parseNativeMessage(message), null, JSON.stringify(message));
   });

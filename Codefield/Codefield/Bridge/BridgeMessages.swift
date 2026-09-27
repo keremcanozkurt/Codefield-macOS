@@ -30,7 +30,6 @@ nonisolated enum NativeMessage: Sendable {
     case finish(run: Int)
     case fail(run: Int, error: AnalysisFailure)
     case cancel(run: Int)
-    case showFAQ
     case focusSearch
 
     // Property-list values only: callAsyncJavaScript converts them to
@@ -68,8 +67,6 @@ nonisolated enum NativeMessage: Sendable {
             return ["type": "analysis.fail", "run": run, "error": error.rawValue]
         case let .cancel(run):
             return ["type": "analysis.cancel", "run": run]
-        case .showFAQ:
-            return ["type": "workspace.showFAQ"]
         case .focusSearch:
             return ["type": "workspace.focusSearch"]
         }

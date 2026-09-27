@@ -171,32 +171,67 @@ extension WorkspaceWebController: WKUIDelegate {
 }
 
 extension WorkspaceWebController: WKDownloadDelegate {
+    // WebKit gives its network process access to the destination through a
+    // sandbox extension it issues on the main thread, and for a file in
+    // Downloads that call can block and freeze the window. The image is
+    // written to the app's temporary folder instead and moved afterwards,
+    // off the main thread.
     func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String) async -> URL? {
         guard let name = ExportFile.acceptedName(suggestedFilename),
-              let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+              let staged = try? ExportFile.stagingURL(for: name)
         else {
             log.error("Refused a download that is not a PNG export.")
             return nil
         }
-        let destination = ExportFile.availableURL(for: name, in: downloads)
-        exports[ObjectIdentifier(download)] = destination
-        return destination
+        exports[ObjectIdentifier(download)] = staged
+        return staged
     }
 
     func downloadDidFinish(_ download: WKDownload) {
-        // The notification Safari posts, which bounces the Downloads stack in
-        // the Dock.
-        if let destination = exports.removeValue(forKey: ObjectIdentifier(download)) {
-            DistributedNotificationCenter.default().post(
-                name: .init("com.apple.DownloadFileFinished"),
-                object: destination.resolvingSymlinksInPath().path(percentEncoded: false)
-            )
+        guard let staged = exports.removeValue(forKey: ObjectIdentifier(download)) else { return }
+        Task {
+            do {
+                let saved = try await Self.moveToDownloads(staged)
+                // The notification Safari posts, which bounces the Downloads
+                // stack in the Dock.
+                DistributedNotificationCenter.default().post(
+                    name: .init("com.apple.DownloadFileFinished"),
+                    object: saved.resolvingSymlinksInPath().path(percentEncoded: false)
+                )
+            } catch {
+                showExportFailure(error)
+            }
         }
     }
 
     func download(_ download: WKDownload, didFailWithError error: any Error, resumeData: Data?) {
-        exports.removeValue(forKey: ObjectIdentifier(download))
+        if let staged = exports.removeValue(forKey: ObjectIdentifier(download)) {
+            try? FileManager.default.removeItem(at: staged.deletingLastPathComponent())
+        }
+        if (error as NSError).code == NSURLErrorCancelled { return }
+        showExportFailure(error)
+    }
+
+    @concurrent
+    private nonisolated static func moveToDownloads(_ staged: URL) async throws -> URL {
+        guard let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        return try ExportFile.move(staged, into: downloads)
+    }
+
+    // The page reports success once it hands over the image, so a failed save
+    // is only visible from here.
+    private func showExportFailure(_ error: any Error) {
         log.error("PNG export could not be saved: \(error.localizedDescription, privacy: .public)")
+        let alert = NSAlert()
+        alert.messageText = "The PNG could not be saved"
+        alert.informativeText = "Codefield saves exports to your Downloads folder. \(error.localizedDescription)"
+        if let window = webView.window {
+            alert.beginSheetModal(for: window)
+        } else {
+            alert.runModal()
+        }
     }
 }
 
@@ -250,5 +285,22 @@ nonisolated enum ExportFile {
             number += 1
         }
         return candidate
+    }
+
+    // A folder of its own in the app's temporary folder, so two exports
+    // never share a file.
+    static func stagingURL(for name: String, in temporary: URL = FileManager.default.temporaryDirectory) throws -> URL {
+        let folder = temporary.appending(path: "Exports/\(UUID().uuidString)", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder.appending(path: name)
+    }
+
+    // Moves a staged export next to any earlier ones without replacing them,
+    // and removes its staging folder either way.
+    static func move(_ staged: URL, into directory: URL, fileManager: FileManager = .default) throws -> URL {
+        defer { try? fileManager.removeItem(at: staged.deletingLastPathComponent()) }
+        let destination = availableURL(for: staged.lastPathComponent, in: directory, fileManager: fileManager)
+        try fileManager.moveItem(at: staged, to: destination)
+        return destination
     }
 }

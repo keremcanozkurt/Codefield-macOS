@@ -3,7 +3,7 @@ import SwiftUI
 struct StartView: View {
     let model: RepositoryWindowModel
     @State private var isTargeted = false
-    @State private var dropRefused = false
+    @State private var refusal: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -16,16 +16,20 @@ struct StartView: View {
                     .foregroundStyle(Theme.muted)
             }
 
-            Button("Open Repository…") { model.chooseRepository() }
-                .buttonStyle(QuietButtonStyle(prominent: true))
-                .keyboardShortcut(.defaultAction)
-                .padding(.top, 32)
+            HStack(spacing: 10) {
+                Button("Open Repository…") { model.chooseRepository() }
+                    .buttonStyle(QuietButtonStyle(prominent: true))
+                    .keyboardShortcut(.defaultAction)
+                Button("Clone Git Repository…") { model.showClone() }
+                    .buttonStyle(QuietButtonStyle(prominent: true, secondary: true))
+            }
+            .padding(.top, 32)
 
-            Text(dropRefused ? "Drop a single folder, not files." : "or drag a repository folder here")
+            Text(refusal ?? "or drag a repository folder here")
                 .font(.system(size: 12))
-                .foregroundStyle(dropRefused ? Theme.warning : Theme.subtle)
+                .foregroundStyle(refusal == nil ? Theme.subtle : Theme.warning)
                 .padding(.top, 12)
-                .animation(.easeOut(duration: 0.15), value: dropRefused)
+                .animation(.easeOut(duration: 0.15), value: refusal)
 
             if !model.recents.items.isEmpty {
                 RecentList(model: model)
@@ -34,13 +38,20 @@ struct StartView: View {
 
             Spacer(minLength: 40)
 
-            Text("Your source code stays on your Mac.")
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.subtle)
-                .padding(.bottom, 20)
+            HStack(spacing: 14) {
+                Button("FAQ") { model.showFAQ() }
+                Button("Support") { ExternalLinks.open(ExternalLinks.support) }
+                    .help("Codefield is free for personal use. Support its continued development.")
+                Spacer()
+                Text("Your source code stays on your Mac.")
+                    .foregroundStyle(Theme.subtle)
+            }
+            .buttonStyle(FooterLinkStyle())
+            .font(.system(size: 11))
+            .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.horizontal, 32)
+        .padding(.horizontal, 24)
         .overlay {
             RoundedRectangle(cornerRadius: 10)
                 .strokeBorder(Theme.lineStrong, style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
@@ -51,17 +62,35 @@ struct StartView: View {
                 .allowsHitTesting(false)
         }
         .dropDestination(for: URL.self) { urls, _ in
-            let accepted = model.openDropped(urls)
-            if !accepted { refuseDrop() }
-            return accepted
+            let result = model.openDropped(urls)
+            if let message = result.refusal { refuse(message) }
+            return result == .opened
         } isTargeted: { isTargeted = $0 }
     }
 
-    private func refuseDrop() {
-        dropRefused = true
+    private func refuse(_ message: String) {
+        refusal = message
         Task {
             try? await Task.sleep(for: .seconds(3))
-            dropRefused = false
+            if refusal == message { refusal = nil }
+        }
+    }
+}
+
+private struct FooterLinkStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        FooterLink(configuration: configuration)
+    }
+
+    private struct FooterLink: View {
+        let configuration: ButtonStyleConfiguration
+        @State private var isHovered = false
+
+        var body: some View {
+            configuration.label
+                .foregroundStyle(isHovered || configuration.isPressed ? Theme.foreground : Theme.muted)
+                .contentShape(Rectangle())
+                .onHover { isHovered = $0 }
         }
     }
 }
@@ -127,7 +156,7 @@ private struct RecentRow: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundStyle(location == nil ? Theme.subtle : Theme.foreground)
                     .lineLimit(1)
-                Text(location ?? "Not found")
+                Text(location ?? "Not available")
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.subtle)
                     .lineLimit(1)
@@ -153,20 +182,22 @@ private struct RecentRow: View {
 // Matches the page's buttons: a thin border that strengthens on hover.
 struct QuietButtonStyle: ButtonStyle {
     var prominent = false
+    var secondary = false
 
     func makeBody(configuration: Configuration) -> some View {
-        QuietButton(configuration: configuration, prominent: prominent)
+        QuietButton(configuration: configuration, prominent: prominent, secondary: secondary)
     }
 
     private struct QuietButton: View {
         let configuration: ButtonStyleConfiguration
         let prominent: Bool
+        let secondary: Bool
         @State private var isHovered = false
 
         var body: some View {
             configuration.label
                 .font(.system(size: prominent ? 14 : 12, weight: .medium))
-                .foregroundStyle(Theme.foreground)
+                .foregroundStyle(secondary && !isHovered ? Theme.muted : Theme.foreground)
                 .padding(.horizontal, prominent ? 18 : 12)
                 .frame(height: prominent ? 36 : 28)
                 .background(

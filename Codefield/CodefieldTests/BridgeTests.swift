@@ -36,7 +36,7 @@ struct BridgeMessageTests {
         #expect(sources["skipped"] as? [[String]] == [["b.ts", "too_large"]])
         #expect(sources["files"] as? [[String]] == [["a.ts", "x"]])
         #expect(NativeMessage.fail(run: 1, error: .resourcesExceeded).payload["error"] as? String == "resources_exceeded")
-        #expect(NativeMessage.showFAQ.payload.count == 1)
+        #expect(NativeMessage.focusSearch.payload.count == 1)
     }
 
     @Test func decodesReplies() {
@@ -122,5 +122,20 @@ struct WorkspaceResourceTests {
         #expect(ExportFile.availableURL(for: "codefield-x.png", in: folder.url).lastPathComponent == "codefield-x.png")
         try folder.write(["codefield-x.png": "", "codefield-x 2.png": ""])
         #expect(ExportFile.availableURL(for: "codefield-x.png", in: folder.url).lastPathComponent == "codefield-x 3.png")
+    }
+
+    @Test func movesAStagedExportWithoutReplacingEarlierOnes() throws {
+        let temporary = try TemporaryFolder()
+        let downloads = try TemporaryFolder()
+        try downloads.write(["codefield-x.png": "earlier"])
+
+        let staged = try ExportFile.stagingURL(for: "codefield-x.png", in: temporary.url)
+        try Data("image".utf8).write(to: staged)
+        let saved = try ExportFile.move(staged, into: downloads.url)
+
+        #expect(saved.lastPathComponent == "codefield-x 2.png")
+        #expect(try String(contentsOf: saved, encoding: .utf8) == "image")
+        #expect(try String(contentsOfFile: downloads.path + "/codefield-x.png", encoding: .utf8) == "earlier")
+        #expect(!FileManager.default.fileExists(atPath: staged.deletingLastPathComponent().path(percentEncoded: false)))
     }
 }

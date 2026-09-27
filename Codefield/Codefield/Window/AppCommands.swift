@@ -12,6 +12,10 @@ struct AppCommands: Commands {
             }
             .keyboardShortcut("o")
 
+            Button("Clone Git Repository…") {
+                if let window { window.showClone() } else { openWindow(id: CodefieldApp.windowID) }
+            }
+
             Menu("Open Recent") {
                 ForEach(recents.items) { item in
                     Button(item.name) { window?.openRecent(item) }
@@ -41,7 +45,7 @@ struct AppCommands: Commands {
 
         CommandGroup(replacing: .help) {
             Button("Codefield FAQ") { window?.showFAQ() }
-                .disabled(window?.isRevealed != true)
+                .disabled(window == nil)
             Button("Support Codefield") { ExternalLinks.open(ExternalLinks.support) }
         }
     }

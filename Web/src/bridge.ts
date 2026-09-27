@@ -22,7 +22,6 @@ export type NativeMessage =
   | { type: "analysis.finish"; run: number }
   | { type: "analysis.fail"; run: number; error: DesktopErrorCode }
   | { type: "analysis.cancel"; run: number }
-  | { type: "workspace.showFAQ" }
   | { type: "workspace.focusSearch" };
 
 // Reply to analysis.begin: the files to read, or the finished outcome when
@@ -44,11 +43,7 @@ const SKIP_REASONS: readonly SkipReason[] = ["too_large", "not_utf8", "symlink",
 
 export function parseNativeMessage(value: unknown): NativeMessage | null {
   if (!isRecord(value) || typeof value.type !== "string") return null;
-  switch (value.type) {
-    case "workspace.showFAQ":
-    case "workspace.focusSearch":
-      return { type: value.type };
-  }
+  if (value.type === "workspace.focusSearch") return { type: value.type };
 
   const run = value.run;
   if (!isRun(run)) return null;

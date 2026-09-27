@@ -53,17 +53,31 @@ final class RepositoryWindowModel {
     private(set) var isRevealed = false
     private(set) var failure: String?
     var alert: String?
+    // A recent repository that could not be opened, offered for removal.
+    var unavailableRecent: RecentRepository?
+    var isClonePresented = false
+    var isFAQPresented = false
 
     let recents: RecentRepositoryStore
+    let cloneParent: CloneParentFolder
 
     @ObservationIgnored private let makePage: () -> any WorkspacePage
+    @ObservationIgnored private let cloner: any RepositoryCloner
     @ObservationIgnored private var webController: (any WorkspacePage)?
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private var run = 0
     @ObservationIgnored private var filesRead = 0
+    @ObservationIgnored private var timings = StageTimings()
 
-    init(recents: RecentRepositoryStore = .shared, makePage: @escaping () -> any WorkspacePage = { WorkspaceWebController() }) {
+    init(
+        recents: RecentRepositoryStore = .shared,
+        cloneParent: CloneParentFolder = CloneParentFolder(),
+        cloner: any RepositoryCloner = ServiceCloner(),
+        makePage: @escaping () -> any WorkspacePage = { WorkspaceWebController() }
+    ) {
         self.recents = recents
+        self.cloneParent = cloneParent
+        self.cloner = cloner
         self.makePage = makePage
     }
 
@@ -118,22 +132,75 @@ final class RepositoryWindowModel {
 
     func openRecent(_ item: RecentRepository) {
         guard let url = recents.resolve(item) else {
-            alert = "“\(item.name)” could not be found. It may have been moved or deleted."
+            unavailableRecent = item
+            return
+        }
+        // The bookmark's scope has to be started before the folder can be
+        // checked; without it a folder that is there reads as unreadable.
+        let access = RepositoryAccess(url: url)
+        if case .failure(.notFound) = RepositoryRoot.resolve(access.url) {
+            unavailableRecent = item
             return
         }
         open(url)
     }
 
-    // Folders only; the drop goes through the same checks as the open panel.
-    func openDropped(_ urls: [URL]) -> Bool {
-        guard urls.count == 1, let url = urls.first else { return false }
-        guard case .success = RepositoryRoot.resolve(url) else { return false }
-        open(url)
-        return true
+    enum DropResult: Equatable {
+        case opened
+        case refused(String)
+
+        var refusal: String? {
+            if case .refused(let message) = self { message } else { nil }
+        }
+    }
+
+    // One folder only; the drop goes through the same checks as the open panel.
+    func openDropped(_ urls: [URL]) -> DropResult {
+        guard urls.count == 1, let url = urls.first else { return .refused("Drop one folder at a time.") }
+        switch RepositoryRoot.resolve(url) {
+        case .success:
+            open(url)
+            return .opened
+        case .failure(.notAFolder):
+            return .refused("Drop a folder, not a file.")
+        case .failure(.permissionDenied):
+            return .refused("Codefield cannot read that folder.")
+        case .failure(.notFound):
+            return .refused("That folder could not be found.")
+        }
+    }
+
+    // Clones into a new folder inside `parent`, then opens the clone like any
+    // other folder. A failed or cancelled clone leaves nothing behind: git
+    // removes its own partial clone.
+    func clone(remote: String, parent: URL, name: String) async -> CloneOutcome {
+        let parentAccess = RepositoryAccess(url: parent)
+        guard let parentPath = RepositoryRoot.realPath(parent.path(percentEncoded: false)) else {
+            return CloneOutcome(failure: .invalidDestination, detail: nil)
+        }
+        if case .failure(let failure) = CloneDestination.resolve(parentPath: parentPath, name: name) {
+            return CloneOutcome(failure: failure, detail: nil)
+        }
+        cloneParent.remember(parent)
+
+        let outcome = await cloner.clone(remote: remote, parentPath: parentPath, directoryName: name)
+        guard outcome.failure == nil else { return outcome }
+
+        // The clone is only reachable through the parent folder's access,
+        // which ends with parentAccess; a bookmark of its own keeps it open.
+        let clone = URL(filePath: parentPath + "/" + name, directoryHint: .isDirectory)
+        if let resolved = recents.bookmarkedURL(for: clone) { open(resolved) } else { open(clone) }
+        withExtendedLifetime(parentAccess) {}
+        return outcome
+    }
+
+    func cancelClone() {
+        cloner.cancel()
     }
 
     func close() {
         cancel()
+        cloner.cancel()
         webController?.tearDown()
         webController = nil
         repository = nil
@@ -147,8 +214,11 @@ final class RepositoryWindowModel {
     }
 
     func showFAQ() {
-        guard webController?.isReady == true else { return }
-        Task { _ = try? await web.send(.showFAQ) }
+        isFAQPresented = true
+    }
+
+    func showClone() {
+        isClonePresented = true
     }
 
     func focusSearch() {
@@ -169,6 +239,7 @@ final class RepositoryWindowModel {
         }
         failure = nil
         progress = .readingRepository(files: 0)
+        timings = StageTimings()
         let web = web
         task = Task { await perform(run: run, fresh: fresh, repository: repository, web: web) }
     }
@@ -185,6 +256,7 @@ final class RepositoryWindowModel {
 
     private func perform(run: Int, fresh: Bool, repository: OpenedRepository, web: any WorkspacePage) async {
         await web.waitUntilReady()
+        timings.mark("page")
         do {
             try Task.checkCancellation()
             let root = repository.path
@@ -195,6 +267,7 @@ final class RepositoryWindowModel {
             let git = await metadata
             try Task.checkCancellation()
             self.git = git
+            timings.mark("listing")
 
             let identity = RepositoryIdentity(name: repository.name, branch: git?.branch, remote: git?.remote)
             let begin = try await web.send(.begin(run: run, fresh: fresh, repository: identity, listing: listing))
@@ -257,11 +330,17 @@ final class RepositoryWindowModel {
         }
 
         try Task.checkCancellation()
+        timings.mark("reading")
         report(run, .analyzing(files: read))
         filesRead = read
         let reply = try await web.send(.finish(run: run))
         try Task.checkCancellation()
-        finish(run, AnalysisOutcome(reply: reply) ?? .error)
+        timings.mark("rendering")
+        let outcome = AnalysisOutcome(reply: reply) ?? .error
+        if case let .success(files, edges) = outcome {
+            log.info("Analyzed \(files, privacy: .public) files, \(edges, privacy: .public) edges: \(self.timings.summary, privacy: .public)")
+        }
+        finish(run, outcome)
     }
 
     @concurrent
@@ -289,10 +368,16 @@ final class RepositoryWindowModel {
         case .ready:
             break
         case .progress(let run, let stage):
+            guard run == self.run else { return }
             switch stage {
-            case .analysis: report(run, .analyzing(files: filesRead))
-            case .graph: report(run, .buildingGraph(files: filesRead))
-            case .render: report(run, .rendering)
+            case .analysis:
+                report(run, .analyzing(files: filesRead))
+            case .graph:
+                timings.mark("analysis")
+                report(run, .buildingGraph(files: filesRead))
+            case .render:
+                timings.mark("graph")
+                report(run, .rendering)
             }
         case .analyzeAgain:
             analyzeAgain()
@@ -306,5 +391,36 @@ final class RepositoryWindowModel {
         progress = nil
         isRevealed = false
         analyze(fresh: true)
+    }
+}
+
+// Time spent in each stage of one analysis, for the log. "page" is waiting
+// for a new window's workspace page to load; "reading" includes sending the
+// text to the page; "rendering" is the page laying out and drawing the result.
+private struct StageTimings {
+    private let clock = ContinuousClock()
+    private var last: ContinuousClock.Instant
+    private let start: ContinuousClock.Instant
+    private var stages: [(String, Duration)] = []
+
+    init() {
+        start = clock.now
+        last = start
+    }
+
+    mutating func mark(_ stage: String) {
+        let now = clock.now
+        stages.append((stage, now - last))
+        last = now
+    }
+
+    var summary: String {
+        let parts = stages.map { "\($0.0) \(Self.seconds($0.1))" }
+        return (parts + ["total \(Self.seconds(last - start))"]).joined(separator: ", ")
+    }
+
+    private static func seconds(_ duration: Duration) -> String {
+        let value = Double(duration.components.seconds) + Double(duration.components.attoseconds) / 1e18
+        return String(format: "%.2f s", value)
     }
 }

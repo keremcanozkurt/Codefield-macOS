@@ -6,7 +6,7 @@
 import { execFileSync } from "node:child_process";
 import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import * as esbuild from "esbuild";
 
@@ -54,6 +54,13 @@ execFileSync(
 );
 
 await copyFile(join(web, "src", "workspace.html"), join(output, "workspace.html"));
+
+// The native FAQ window reads the same questions the page shows.
+const product = await import(pathToFileURL(join(web, "src", "product.ts")).href);
+await writeFile(
+  join(output, "faq.json"),
+  `${JSON.stringify({ supportURL: product.SUPPORT_URL, supportNote: product.SUPPORT_NOTE, entries: product.FAQ }, null, 2)}\n`,
+);
 
 // The license text of every npm package that ended up in the bundles.
 async function licenses(metafiles) {
