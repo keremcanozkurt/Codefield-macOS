@@ -37,6 +37,9 @@ struct BridgeMessageTests {
         #expect(sources["files"] as? [[String]] == [["a.ts", "x"]])
         #expect(NativeMessage.fail(run: 1, error: .resourcesExceeded).payload["error"] as? String == "resources_exceeded")
         #expect(NativeMessage.focusSearch.payload.count == 1)
+        let fullScreen = NativeMessage.fullScreen(false).payload
+        #expect(fullScreen["type"] as? String == "window.fullScreen")
+        #expect(fullScreen["on"] as? Bool == false)
     }
 
     @Test func decodesReplies() {
@@ -53,6 +56,8 @@ struct BridgeMessageTests {
         #expect(PageMessage(body: ["type": "ready"]) == .ready)
         #expect(PageMessage(body: ["type": "analyzeAgain"]) == .analyzeAgain)
         #expect(PageMessage(body: ["type": "progress", "run": NSNumber(value: 2), "stage": "graph"]) == .progress(run: 2, stage: .graph))
+        #expect(PageMessage(body: ["type": "fullScreen", "on": NSNumber(value: true)]) == .fullScreen(true))
+        #expect(PageMessage(body: ["type": "fullScreen", "on": NSNumber(value: false)]) == .fullScreen(false))
     }
 
     @Test func rejectsMalformedPageMessages() {
@@ -68,6 +73,10 @@ struct BridgeMessageTests {
             ["type": "progress", "run": NSNumber(value: true), "stage": "graph"],
             ["type": "progress", "run": "1", "stage": "graph"],
             ["type": "progress", "stage": "graph"],
+            ["type": "fullScreen"],
+            ["type": "fullScreen", "on": NSNumber(value: 1)],
+            ["type": "fullScreen", "on": "true"],
+            ["type": "fullScreen", "on": true, "window": 2],
         ]
         for body in rejected {
             #expect(PageMessage(body: body) == nil)
@@ -125,6 +134,32 @@ struct WorkspaceResourceTests {
         #expect(ExportFile.availableURL(for: "codefield-x.png", in: folder.url).lastPathComponent == "codefield-x.png")
         try folder.write(["codefield-x.png": "", "codefield-x 2.png": ""])
         #expect(ExportFile.availableURL(for: "codefield-x.png", in: folder.url).lastPathComponent == "codefield-x 3.png")
+    }
+
+    @Test func acceptsOnlyPNGHeadersOfExportSize() {
+        #expect(ExportFile.isExportPNGHeader(pngHeader(width: 3132, height: 1816)))
+        #expect(ExportFile.isExportPNGHeader(pngHeader(width: 1, height: 8192)))
+        #expect(!ExportFile.isExportPNGHeader(pngHeader(width: 0, height: 10)))
+        #expect(!ExportFile.isExportPNGHeader(pngHeader(width: 10, height: 8193)))
+        #expect(!ExportFile.isExportPNGHeader(pngHeader(width: 10, height: 10).prefix(23)))
+        #expect(!ExportFile.isExportPNGHeader(Data()))
+
+        var jpeg = pngHeader(width: 10, height: 10)
+        jpeg.replaceSubrange(0..<3, with: [0xFF, 0xD8, 0xFF])
+        #expect(!ExportFile.isExportPNGHeader(jpeg))
+        var noHeaderChunk = pngHeader(width: 10, height: 10)
+        noHeaderChunk.replaceSubrange(12..<16, with: Array("IDAT".utf8))
+        #expect(!ExportFile.isExportPNGHeader(noHeaderChunk))
+    }
+
+    @Test func checksTheStagedFileItself() throws {
+        let folder = try TemporaryFolder()
+        try folder.write("image.png", data: pngHeader(width: 640, height: 480) + Data(count: 64))
+        try folder.write(["script.png": "#!/bin/sh\necho exported\n"])
+
+        #expect(ExportFile.isExportPNG(at: folder.url.appending(path: "image.png")))
+        #expect(!ExportFile.isExportPNG(at: folder.url.appending(path: "script.png")))
+        #expect(!ExportFile.isExportPNG(at: folder.url.appending(path: "missing.png")))
     }
 
     @Test func movesAStagedExportWithoutReplacingEarlierOnes() throws {

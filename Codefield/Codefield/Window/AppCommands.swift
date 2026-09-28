@@ -16,6 +16,9 @@ struct AppCommands: Commands {
                 if let window { window.showClone() } else { openWindow(id: CodefieldApp.windowID) }
             }
 
+            Button("Choose Export Folder…") { window?.chooseExportFolder() }
+                .disabled(window == nil)
+
             Menu("Open Recent") {
                 ForEach(recents.items) { item in
                     Button(item.name) { window?.openRecent(item) }

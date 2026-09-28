@@ -35,3 +35,13 @@ body,
   min-height: 0;
   height: auto;
 }
+
+/*
+  Full screen puts the window into macOS full screen, where the window's
+  toolbar already shows the repository name, the FAQ and the support links.
+  Upstream's full-screen header, the first row of the fixed layout, would
+  repeat them.
+*/
+.desktop-workspace > .fixed > div:first-child {
+  display: none;
+}

@@ -15,6 +15,9 @@ protocol WorkspacePage: AnyObject {
     var isReady: Bool { get }
     var onMessage: (PageMessage) -> Void { get set }
     var onPageReset: () -> Void { get set }
+    // A PNG export WebKit has written to a staging folder, or why it could
+    // not.
+    var onExport: (Result<URL, any Error>) -> Void { get set }
     func waitUntilReady() async
     @discardableResult func send(_ message: NativeMessage) async throws -> Any?
     func focus()
@@ -23,12 +26,14 @@ protocol WorkspacePage: AnyObject {
 
 // Owns one window's WKWebView. The page it shows is bundled and served by
 // WorkspaceSchemeHandler; any other navigation is refused, links to the
-// Codefield site open in the default browser, and a PNG export is saved to
-// Downloads.
+// Codefield site open in the default browser, a PNG export is handed to the
+// window to save, and the page's Full screen button drives the window's
+// macOS full screen.
 final class WorkspaceWebController: NSObject, WorkspacePage {
     let webView: WKWebView
     var onMessage: (PageMessage) -> Void = { _ in }
     var onPageReset: () -> Void = {}
+    var onExport: (Result<URL, any Error>) -> Void = { _ in }
 
     private(set) var isReady = false
     private var exports: [ObjectIdentifier: URL] = [:]
@@ -53,6 +58,10 @@ final class WorkspaceWebController: NSObject, WorkspacePage {
         webView.isInspectable = true
         #endif
         webView.load(URLRequest(url: WorkspaceSchemeHandler.pageURL))
+
+        for name in [NSWindow.didEnterFullScreenNotification, NSWindow.didExitFullScreenNotification] {
+            NotificationCenter.default.addObserver(self, selector: #selector(windowFullScreenChanged(_:)), name: name, object: nil)
+        }
 
         Task { [weak self] in
             try? await Task.sleep(for: .seconds(20))
@@ -84,6 +93,7 @@ final class WorkspaceWebController: NSObject, WorkspacePage {
     }
 
     func tearDown() {
+        NotificationCenter.default.removeObserver(self)
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "codefield")
         webView.stopLoading()
         resumeWaiters()
@@ -102,7 +112,24 @@ final class WorkspaceWebController: NSObject, WorkspacePage {
             isReady = true
             resumeWaiters()
         }
+        if case let .fullScreen(on) = parsed {
+            setWindowFullScreen(on)
+            return
+        }
         onMessage(parsed)
+    }
+
+    private func setWindowFullScreen(_ on: Bool) {
+        guard let window = webView.window, window.styleMask.contains(.fullScreen) != on else { return }
+        window.toggleFullScreen(nil)
+    }
+
+    // Also covers leaving full screen with the green button, the View menu or
+    // ⌃⌘F, so the page can end its own full-screen layout.
+    @objc private func windowFullScreenChanged(_ notification: Notification) {
+        guard isReady, let window = notification.object as? NSWindow, window === webView.window else { return }
+        let on = window.styleMask.contains(.fullScreen)
+        Task { _ = try? await send(.fullScreen(on)) }
     }
 
     private func resumeWaiters() {
@@ -172,10 +199,10 @@ extension WorkspaceWebController: WKUIDelegate {
 
 extension WorkspaceWebController: WKDownloadDelegate {
     // WebKit gives its network process access to the destination through a
-    // sandbox extension it issues on the main thread, and for a file in
-    // Downloads that call can block and freeze the window. The image is
-    // written to the app's temporary folder instead and moved afterwards,
-    // off the main thread.
+    // sandbox extension it issues on the main thread, and for a file outside
+    // the app's container that call can block and freeze the window. The
+    // image is written to the app's temporary folder instead, and the window
+    // moves it to the export folder afterwards, off the main thread.
     func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String) async -> URL? {
         guard let name = ExportFile.acceptedName(suggestedFilename),
               let staged = try? ExportFile.stagingURL(for: name)
@@ -189,49 +216,15 @@ extension WorkspaceWebController: WKDownloadDelegate {
 
     func downloadDidFinish(_ download: WKDownload) {
         guard let staged = exports.removeValue(forKey: ObjectIdentifier(download)) else { return }
-        Task {
-            do {
-                let saved = try await Self.moveToDownloads(staged)
-                // The notification Safari posts, which bounces the Downloads
-                // stack in the Dock.
-                DistributedNotificationCenter.default().post(
-                    name: .init("com.apple.DownloadFileFinished"),
-                    object: saved.resolvingSymlinksInPath().path(percentEncoded: false)
-                )
-            } catch {
-                showExportFailure(error)
-            }
-        }
+        onExport(.success(staged))
     }
 
     func download(_ download: WKDownload, didFailWithError error: any Error, resumeData: Data?) {
         if let staged = exports.removeValue(forKey: ObjectIdentifier(download)) {
-            try? FileManager.default.removeItem(at: staged.deletingLastPathComponent())
+            ExportFile.discard(staged)
         }
         if (error as NSError).code == NSURLErrorCancelled { return }
-        showExportFailure(error)
-    }
-
-    @concurrent
-    private nonisolated static func moveToDownloads(_ staged: URL) async throws -> URL {
-        guard let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first else {
-            throw CocoaError(.fileNoSuchFile)
-        }
-        return try ExportFile.move(staged, into: downloads)
-    }
-
-    // The page reports success once it hands over the image, so a failed save
-    // is only visible from here.
-    private func showExportFailure(_ error: any Error) {
-        log.error("PNG export could not be saved: \(error.localizedDescription, privacy: .public)")
-        let alert = NSAlert()
-        alert.messageText = "The PNG could not be saved"
-        alert.informativeText = "Codefield saves exports to your Downloads folder. \(error.localizedDescription)"
-        if let window = webView.window {
-            alert.beginSheetModal(for: window)
-        } else {
-            alert.runModal()
-        }
+        onExport(.failure(error))
     }
 }
 
@@ -279,6 +272,38 @@ nonisolated enum ExportFile {
         suggested.wholeMatch(of: /codefield-[A-Za-z0-9._-]+\.png/) == nil ? nil : suggested
     }
 
+    // The page exports at most 8192 pixels a side (upstream's
+    // EXPORT_MAX_DIMENSION); the byte limit is far above what a PNG of that
+    // size compresses to.
+    static let maxDimension: UInt32 = 8192
+    static let maxBytes = 256 * 1024 * 1024
+
+    // Whether a staged download is a PNG the page could have exported, judged
+    // by its size on disk and its header, before it is moved anywhere.
+    static func isExportPNG(at url: URL) -> Bool {
+        guard let size = try? FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false))[.size] as? Int,
+              size <= maxBytes,
+              let handle = try? FileHandle(forReadingFrom: url)
+        else { return false }
+        defer { try? handle.close() }
+        guard let header = try? handle.read(upToCount: 24) else { return false }
+        return isExportPNGHeader(header)
+    }
+
+    // The PNG signature, then the IHDR chunk that must follow it, with a
+    // width and height of 1...maxDimension.
+    static func isExportPNGHeader(_ header: Data) -> Bool {
+        let bytes = [UInt8](header)
+        let signature: [UInt8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
+        guard bytes.count >= 24,
+              bytes[0..<8].elementsEqual(signature),
+              bytes[12..<16].elementsEqual(Array("IHDR".utf8))
+        else { return false }
+        let width = bytes[16..<20].reduce(UInt32(0)) { $0 << 8 | UInt32($1) }
+        let height = bytes[20..<24].reduce(UInt32(0)) { $0 << 8 | UInt32($1) }
+        return (1...maxDimension).contains(width) && (1...maxDimension).contains(height)
+    }
+
     // "codefield-x.png", then "codefield-x 2.png" and so on, as Finder names
     // copies.
     static func availableURL(for name: String, in directory: URL, fileManager: FileManager = .default) -> URL {
@@ -303,9 +328,14 @@ nonisolated enum ExportFile {
     // Moves a staged export next to any earlier ones without replacing them,
     // and removes its staging folder either way.
     static func move(_ staged: URL, into directory: URL, fileManager: FileManager = .default) throws -> URL {
-        defer { try? fileManager.removeItem(at: staged.deletingLastPathComponent()) }
+        defer { discard(staged, fileManager: fileManager) }
         let destination = availableURL(for: staged.lastPathComponent, in: directory, fileManager: fileManager)
         try fileManager.moveItem(at: staged, to: destination)
         return destination
+    }
+
+    // Removes a staged export together with its staging folder.
+    static func discard(_ staged: URL, fileManager: FileManager = .default) {
+        try? fileManager.removeItem(at: staged.deletingLastPathComponent())
     }
 }

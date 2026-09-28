@@ -54,7 +54,8 @@ export const FAQ: FaqEntry[] = [
   shared.languages,
   {
     question: "Where does Export PNG save the image?",
-    answer: "In your Downloads folder.",
+    answer:
+      "In a folder you choose the first time you export. Later exports are saved there without asking, and a note shows where each one went. File > Choose Export Folder changes the folder.",
   },
   shared.license,
 ];

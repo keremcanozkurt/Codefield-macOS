@@ -41,7 +41,8 @@ export class HostController {
     };
   }
 
-  async receive(message: NativeMessage): Promise<BeginReply | Outcome | null> {
+  // Full-screen changes go to NativeFullScreen instead.
+  async receive(message: Exclude<NativeMessage, { type: "window.fullScreen" }>): Promise<BeginReply | Outcome | null> {
     switch (message.type) {
       case "workspace.focusSearch":
         this.emit("focusSearch");

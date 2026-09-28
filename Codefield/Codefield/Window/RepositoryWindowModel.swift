@@ -57,12 +57,17 @@ final class RepositoryWindowModel {
     var unavailableRecent: RecentRepository?
     var isClonePresented = false
     var isFAQPresented = false
+    private(set) var exportNotice: ExportNotice?
+    var exportFailure: String?
 
     let recents: RecentRepositoryStore
     let cloneParent: CloneParentFolder
+    let exportFolder: ExportFolder
 
     @ObservationIgnored private let makePage: () -> any WorkspacePage
     @ObservationIgnored private let cloner: any RepositoryCloner
+    @ObservationIgnored private let chooseFolder: @MainActor (NSWindow?, @escaping (URL?) -> Void) -> Void
+    @ObservationIgnored private var isChoosingExportFolder = false
     @ObservationIgnored private var webController: (any WorkspacePage)?
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private var run = 0
@@ -73,11 +78,15 @@ final class RepositoryWindowModel {
         recents: RecentRepositoryStore = .shared,
         cloneParent: CloneParentFolder = CloneParentFolder(),
         cloner: any RepositoryCloner = ServiceCloner(),
+        exportFolder: ExportFolder = ExportFolder(),
+        chooseFolder: @escaping @MainActor (NSWindow?, @escaping (URL?) -> Void) -> Void = { ExportFolder.choose(for: $0, completion: $1) },
         makePage: @escaping () -> any WorkspacePage = { WorkspaceWebController() }
     ) {
         self.recents = recents
         self.cloneParent = cloneParent
         self.cloner = cloner
+        self.exportFolder = exportFolder
+        self.chooseFolder = chooseFolder
         self.makePage = makePage
     }
 
@@ -86,6 +95,7 @@ final class RepositoryWindowModel {
         let controller = makePage()
         controller.onMessage = { [weak self] in self?.receive($0) }
         controller.onPageReset = { [weak self] in self?.pageReset() }
+        controller.onExport = { [weak self] in self?.receiveExport($0) }
         webController = controller
         return controller
     }
@@ -381,6 +391,9 @@ final class RepositoryWindowModel {
             }
         case .analyzeAgain:
             analyzeAgain()
+        case .fullScreen:
+            // Handled by the page's controller, which has the window.
+            break
         }
     }
 
@@ -391,6 +404,86 @@ final class RepositoryWindowModel {
         progress = nil
         isRevealed = false
         analyze(fresh: true)
+    }
+
+    // MARK: Export
+
+    func chooseExportFolder() {
+        askForExportFolder { [weak self] url in
+            if let url { self?.exportFolder.remember(url) }
+        }
+    }
+
+    // A finished export waits in the app's temporary folder until it is moved
+    // to the export folder, which is asked for the first time.
+    func saveExport(_ staged: URL) {
+        guard ExportFile.isExportPNG(at: staged) else {
+            ExportFile.discard(staged)
+            log.error("Refused an export that is not a PNG.")
+            exportFailure = "The exported image was not a valid PNG. Try exporting again."
+            return
+        }
+        if let folder = exportFolder.url {
+            move(staged, into: folder)
+            return
+        }
+        askForExportFolder { [weak self] url in
+            guard let self, let url else {
+                ExportFile.discard(staged)
+                return
+            }
+            exportFolder.remember(url)
+            move(staged, into: url)
+        }
+    }
+
+    func dismissExportNotice(_ notice: ExportNotice) {
+        if exportNotice?.id == notice.id { exportNotice = nil }
+    }
+
+    func revealExport(_ notice: ExportNotice) {
+        let access = RepositoryAccess(url: notice.folder)
+        NSWorkspace.shared.activateFileViewerSelecting([notice.file])
+        withExtendedLifetime(access) {}
+    }
+
+    private func receiveExport(_ result: Result<URL, any Error>) {
+        switch result {
+        case .success(let staged):
+            saveExport(staged)
+        case .failure(let error):
+            log.error("PNG export failed: \(error.localizedDescription, privacy: .public)")
+            exportFailure = error.localizedDescription
+        }
+    }
+
+    // One panel at a time; a second request while it is open is answered
+    // with nil.
+    private func askForExportFolder(_ completion: @escaping (URL?) -> Void) {
+        guard !isChoosingExportFolder else { return completion(nil) }
+        isChoosingExportFolder = true
+        chooseFolder(webController?.view.window ?? NSApp.keyWindow) { [weak self] url in
+            self?.isChoosingExportFolder = false
+            completion(url)
+        }
+    }
+
+    private func move(_ staged: URL, into folder: URL) {
+        Task {
+            do {
+                let saved = try await Self.moveExport(staged, into: folder)
+                exportNotice = ExportNotice(file: saved, folder: folder)
+            } catch {
+                log.error("PNG export could not be saved: \(error.localizedDescription, privacy: .public)")
+                exportFailure = "Codefield could not save it to \(folder.lastPathComponent). \(error.localizedDescription) Choose another folder with File > Choose Export Folder."
+            }
+        }
+    }
+
+    @concurrent
+    private nonisolated static func moveExport(_ staged: URL, into folder: URL) async throws -> URL {
+        let access = RepositoryAccess(url: folder)
+        return try withExtendedLifetime(access) { try ExportFile.move(staged, into: folder) }
     }
 }
 

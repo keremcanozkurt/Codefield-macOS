@@ -3,6 +3,7 @@ import SwiftUI
 
 struct WorkspaceView: View {
     let model: RepositoryWindowModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -17,6 +18,49 @@ struct WorkspaceView: View {
                     model.analyzeAgain()
                 }
             }
+        }
+        .overlay(alignment: .bottom) {
+            if let notice = model.exportNotice {
+                ExportNoticeView(notice: notice) { model.revealExport(notice) }
+                    // Clears the page's status line.
+                    .padding(.bottom, 44)
+                    .transition(.opacity)
+                    .task(id: notice.id) {
+                        try? await Task.sleep(for: .seconds(5))
+                        model.dismissExportNotice(notice)
+                    }
+            }
+        }
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: model.exportNotice?.id)
+    }
+}
+
+private struct ExportNoticeView: View {
+    let notice: ExportNotice
+    let reveal: () -> Void
+
+    var body: some View {
+        HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Saved to \(notice.folderPath)")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.foreground)
+                Text(notice.fileName)
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Theme.muted)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            Button("Show in Finder", action: reveal)
+                .buttonStyle(QuietButtonStyle(secondary: true))
+        }
+        .padding(.leading, 14)
+        .padding(.trailing, 10)
+        .padding(.vertical, 10)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.lineStrong))
+        .onAppear {
+            AccessibilityNotification.Announcement("Saved \(notice.fileName) to \(notice.folderPath)").post()
         }
     }
 }

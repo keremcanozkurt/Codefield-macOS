@@ -23,6 +23,8 @@ describe("parseNativeMessage", () => {
     assert.ok(parseNativeMessage({ type: "analysis.cancel", run: 2 }));
     assert.ok(parseNativeMessage({ type: "analysis.fail", run: 2, error: "resources_exceeded" }));
     assert.deepEqual(parseNativeMessage({ type: "workspace.focusSearch" }), { type: "workspace.focusSearch" });
+    assert.deepEqual(parseNativeMessage({ type: "window.fullScreen", on: false }), { type: "window.fullScreen", on: false });
+    assert.deepEqual(parseNativeMessage({ type: "window.fullScreen", on: true }), { type: "window.fullScreen", on: true });
   });
 
   it("rejects malformed messages", () => {
@@ -48,6 +50,9 @@ describe("parseNativeMessage", () => {
       { type: "analysis.configs", run: 1, files: {} },
       { type: "analysis.fail", run: 1, error: "root_unavailable " },
       { type: "workspace.showFAQ" },
+      { type: "window.fullScreen" },
+      { type: "window.fullScreen", on: 0 },
+      { type: "window.fullScreen", on: "false" },
     ];
     for (const message of rejected) assert.equal(parseNativeMessage(message), null, JSON.stringify(message));
   });

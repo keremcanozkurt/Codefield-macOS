@@ -31,6 +31,8 @@ nonisolated enum NativeMessage: Sendable {
     case fail(run: Int, error: AnalysisFailure)
     case cancel(run: Int)
     case focusSearch
+    // The window entered or left macOS full screen.
+    case fullScreen(Bool)
 
     // Property-list values only: callAsyncJavaScript converts them to
     // JavaScript objects, arrays, strings and numbers.
@@ -69,6 +71,8 @@ nonisolated enum NativeMessage: Sendable {
             return ["type": "analysis.cancel", "run": run]
         case .focusSearch:
             return ["type": "workspace.focusSearch"]
+        case let .fullScreen(on):
+            return ["type": "window.fullScreen", "on": on]
         }
     }
 }
@@ -122,6 +126,9 @@ nonisolated enum PageMessage: Equatable, Sendable {
     case ready
     case progress(run: Int, stage: Stage)
     case analyzeAgain
+    // The workspace's Full screen button, asking for the window to enter or
+    // leave macOS full screen.
+    case fullScreen(Bool)
 
     // Anything that does not match exactly is dropped.
     init?(body: Any) {
@@ -136,6 +143,9 @@ nonisolated enum PageMessage: Equatable, Sendable {
                   let stage = (object["stage"] as? String).flatMap(Stage.init(rawValue:))
             else { return nil }
             self = .progress(run: run, stage: stage)
+        case "fullScreen" where object.count == 2:
+            guard let on = BridgeValue.bool(object["on"]) else { return nil }
+            self = .fullScreen(on)
         default:
             return nil
         }
@@ -150,5 +160,11 @@ nonisolated enum BridgeValue {
         let double = number.doubleValue
         guard double >= 0, double <= Double(Int.max), double.rounded() == double else { return nil }
         return Int(double)
+    }
+
+    // Only a JavaScript boolean, not a number.
+    static func bool(_ value: Any?) -> Bool? {
+        guard let number = value as? NSNumber, CFGetTypeID(number) == CFBooleanGetTypeID() else { return nil }
+        return number.boolValue
     }
 }

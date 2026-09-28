@@ -47,6 +47,15 @@ struct ContentView: View {
         } message: { _ in
             Text("It may have been moved, renamed or deleted, or the drive it is on is not connected.")
         }
+        .alert(
+            "The PNG could not be saved",
+            isPresented: Binding(get: { model.exportFailure != nil }, set: { if !$0 { model.exportFailure = nil } }),
+            presenting: model.exportFailure
+        ) { _ in
+            Button("OK") {}
+        } message: { message in
+            Text(message)
+        }
         .onAppear {
             #if DEBUG
             model.openUITestFixtureIfRequested()

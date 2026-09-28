@@ -4,11 +4,10 @@
 <dict>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
-	<key>com.apple.security.files.user-selected.read-only</key>
+	<!-- Read-write for the folder PNG exports are saved to, chosen in an open panel. Repositories are only read, and their bookmarks are read-only. -->
+	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
 	<key>com.apple.security.files.bookmarks.app-scope</key>
-	<true/>
-	<key>com.apple.security.files.downloads.read-write</key>
 	<true/>
 	<!-- WebKit's networking process needs this for any WKWebView in a sandboxed app, even one that only loads pages from the app's own URL scheme. The workspace page's content security policy still allows no remote connections. -->
 	<key>com.apple.security.network.client</key>

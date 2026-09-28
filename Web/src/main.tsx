@@ -3,18 +3,10 @@ import { createRoot } from "react-dom/client";
 import { App } from "./app.tsx";
 import { parseNativeMessage, postToNative } from "./bridge.ts";
 import { HostController } from "./controller.ts";
-
-// The app leaves WebKit's element full screen off, so the workspace's full
-// screen is its in-page layout and native full screen stays with the window.
-// Without the Fullscreen API, document.fullscreenElement is undefined rather
-// than null, and upstream's Workspace would then call the missing
-// exitFullscreen when leaving its full screen.
-if (!("fullscreenElement" in document)) {
-  Object.defineProperty(document, "fullscreenElement", { get: () => null });
-  Object.defineProperty(document, "exitFullscreen", { value: () => Promise.resolve() });
-}
+import { installNativeFullScreen } from "./fullscreen.ts";
 
 const controller = new HostController();
+const fullScreen = installNativeFullScreen(document, (on) => postToNative({ type: "fullScreen", on }));
 
 declare global {
   interface Window {
@@ -26,6 +18,10 @@ window.codefield = {
   receive(message) {
     const parsed = parseNativeMessage(message);
     if (parsed === null) return Promise.reject(new Error("Malformed message."));
+    if (parsed.type === "window.fullScreen") {
+      fullScreen.windowChanged(parsed.on);
+      return Promise.resolve(null);
+    }
     return controller.receive(parsed);
   },
 };

@@ -22,7 +22,9 @@ export type NativeMessage =
   | { type: "analysis.finish"; run: number }
   | { type: "analysis.fail"; run: number; error: DesktopErrorCode }
   | { type: "analysis.cancel"; run: number }
-  | { type: "workspace.focusSearch" };
+  | { type: "workspace.focusSearch" }
+  // The window entered or left macOS full screen, by any means.
+  | { type: "window.fullScreen"; on: boolean };
 
 // Reply to analysis.begin: the files to read, or the finished outcome when
 // the listing alone decides it (an empty folder, no supported files).
@@ -37,13 +39,19 @@ export type PageMessage =
   | { type: "ready" }
   | { type: "progress"; run: number; stage: "analysis" | "graph" | "render" }
   // The Retry button of an error notice.
-  | { type: "analyzeAgain" };
+  | { type: "analyzeAgain" }
+  // The workspace's Full screen button: put the window in or out of macOS
+  // full screen.
+  | { type: "fullScreen"; on: boolean };
 
 const SKIP_REASONS: readonly SkipReason[] = ["too_large", "not_utf8", "symlink", "unreadable"];
 
 export function parseNativeMessage(value: unknown): NativeMessage | null {
   if (!isRecord(value) || typeof value.type !== "string") return null;
   if (value.type === "workspace.focusSearch") return { type: value.type };
+  if (value.type === "window.fullScreen") {
+    return typeof value.on === "boolean" ? { type: value.type, on: value.on } : null;
+  }
 
   const run = value.run;
   if (!isRun(run)) return null;

@@ -24,6 +24,14 @@ nonisolated struct Bookmarks: Sendable {
             return (url, isStale)
         }
     )
+
+    // For the export folder, the one folder the app writes to.
+    static let securityScopedReadWrite = Bookmarks(
+        make: { url in
+            try url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil)
+        },
+        resolve: securityScoped.resolve
+    )
 }
 
 @Observable

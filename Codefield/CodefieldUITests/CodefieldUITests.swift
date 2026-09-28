@@ -81,6 +81,22 @@ final class CodefieldUITests: XCTestCase {
         app.menuBars.menuItems["Exit Full Screen"].click()
     }
 
+    func testWorkspaceFullScreenIsTheWindowsFullScreen() {
+        web.buttons["Full screen"].click()
+        XCTAssertTrue(web.buttons["Exit full screen"].waitForExistence(timeout: 5))
+        XCTAssertTrue(waitForMenuItem("Exit Full Screen"), "Full screen should put the window into macOS full screen")
+
+        web.buttons["Exit full screen"].click()
+        XCTAssertTrue(waitForMenuItem("Enter Full Screen"))
+
+        // Leaving through the window, not the page, ends the page's layout too.
+        web.buttons["Full screen"].click()
+        XCTAssertTrue(waitForMenuItem("Exit Full Screen"))
+        app.menuBars.menuBarItems["View"].click()
+        app.menuBars.menuItems["Exit Full Screen"].click()
+        XCTAssertTrue(web.buttons["Full screen"].waitForExistence(timeout: 5))
+    }
+
     func testEscapeClosesTheFAQAndKeepsTheSelection() {
         select("b.ts")
         app.toolbars.buttons["FAQ"].click()
